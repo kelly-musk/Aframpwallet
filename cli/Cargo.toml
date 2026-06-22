@@ -1,13 +1,10 @@
 [package]
-name = "wallet-wasm"
+name = "cli"
 version.workspace = true
 edition.workspace = true
 
-[lib]
-crate-type = ["cdylib"]
-doctest = false
-
 [dependencies]
-wasm-bindgen = { workspace = true }
 circuits = { path = "../circuits" }
 hex = { workspace = true }
+rand = { workspace = true }
+ark-serialize = { workspace = true }

@@ -1,10 +1,4 @@
-use ark_bls12_381::Fr;
-use ark_ff::PrimeField;
-use ark_serialize::CanonicalSerialize;
-use circuits::{generate_keys, prove};
-use sha2::{Digest, Sha256};
-
-pub use ark_groth16::{Proof, VerifyingKey};
+use circuits::{PrivacyProofSystem};
 
 #[derive(Clone, Debug)]
 pub struct ViewingKey([u8; 32]);
@@ -26,15 +20,12 @@ impl ViewingKey {
 }
 
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
-pub struct Transaction {
-    pub data: String,
-}
-
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct PrivateSend {
     pub proof_hex: String,
     pub nullifier_hex: String,
     pub commitment_hex: String,
+    pub encrypted_hex: String,
+    pub merkle_root_hex: String,
     pub recipient: String,
     pub amount: u64,
     pub asset: String,
@@ -51,69 +42,58 @@ impl PrivateSend {
 }
 
 pub struct Wallet {
-    secret: Fr,
-    pk: ark_groth16::ProvingKey<ark_bls12_381::Bls12_381>,
+    secret: [u8; 32],
+    system: PrivacyProofSystem,
 }
 
 impl Wallet {
     pub fn from_seed(seed: &str) -> Self {
-        let mut hasher = Sha256::new();
-        hasher.update(seed.as_bytes());
-        let hash = hasher.finalize();
-        let secret = Fr::from_le_bytes_mod_order(&hash);
-
-        Wallet {
-            secret,
-            pk: Self::load_or_generate_pk(),
-        }
-    }
-
-    fn load_or_generate_pk() -> ark_groth16::ProvingKey<ark_bls12_381::Bls12_381> {
-        generate_keys().0
+        let hash = blake3::hash(seed.as_bytes());
+        let mut secret = [0u8; 32];
+        secret.copy_from_slice(hash.as_bytes());
+        let system = PrivacyProofSystem::setup();
+        Wallet { secret, system }
     }
 
     pub fn generate_proof(
         &self,
         recipient: &str,
         amount: u64,
-        asset: &str,
+        _asset: &str,
     ) -> Result<PrivateSend, String> {
-        let amount_fr = Fr::from(amount);
-        let (proof, nullifier, commitment) = prove(self.secret, amount_fr, &self.pk);
+        let mut recipient_bytes = [0u8; 32];
+        let recipient_hash = blake3::hash(recipient.as_bytes());
+        recipient_bytes.copy_from_slice(recipient_hash.as_bytes());
 
-        let mut proof_buf = Vec::new();
-        proof
-            .serialize_compressed(&mut proof_buf)
+        let (proof, nullifier, commitment, encrypted, merkle_root) = self
+            .system
+            .prove(&self.secret, amount, &recipient_bytes, circuits::ark_bn254::Fr::from(0u64))
             .map_err(|e| e.to_string())?;
 
-        let mut nullifier_buf = Vec::new();
-        nullifier
-            .serialize_compressed(&mut nullifier_buf)
-            .map_err(|e| e.to_string())?;
-
-        let mut commitment_buf = Vec::new();
-        commitment
-            .serialize_compressed(&mut commitment_buf)
-            .map_err(|e| e.to_string())?;
+        let (sproof, sinputs) = PrivacyProofSystem::to_serializable_proof(
+            &proof, &nullifier, &commitment, &encrypted, &merkle_root,
+        );
 
         Ok(PrivateSend {
-            proof_hex: hex::encode(proof_buf),
-            nullifier_hex: hex::encode(nullifier_buf),
-            commitment_hex: hex::encode(commitment_buf),
+            proof_hex: hex::encode(&sproof.a),
+            nullifier_hex: hex::encode(&sinputs.nullifier),
+            commitment_hex: hex::encode(&sinputs.commitment),
+            encrypted_hex: hex::encode(&sinputs.encrypted_recipient),
+            merkle_root_hex: hex::encode(&sinputs.merkle_root),
             recipient: recipient.to_string(),
             amount,
-            asset: asset.to_string(),
+            asset: String::new(),
         })
     }
 
     pub fn derive_viewing_key(&self) -> ViewingKey {
-        let mut hasher = Sha256::new();
-        hasher.update(b"viewing_key:");
-        let secret_bytes = self.secret.to_string();
-        hasher.update(secret_bytes.as_bytes());
-        let hash = hasher.finalize();
+        let hash = blake3::hash(b"viewing_key:");
+        let mut hasher = blake3::Hasher::new();
+        hasher.update(hash.as_bytes());
+        hasher.update(&self.secret);
+        let result = hasher.finalize();
         let mut key = [0u8; 32];
-        key.copy_from_slice(&hash);
+        key.copy_from_slice(result.as_bytes());
         ViewingKey(key)
     }
 
@@ -167,15 +147,13 @@ impl TransactionBuilder {
         self
     }
 
-    pub fn build(&self) -> Transaction {
-        Transaction {
-            data: serde_json::json!({
-                "network": format!("{:?}", self.network),
-                "contract_id": self.contract_id,
-                "method": self.method,
-                "args": self.args,
-            })
-            .to_string(),
-        }
+    pub fn build(&self) -> String {
+        serde_json::json!({
+            "network": format!("{:?}", self.network),
+            "contract_id": self.contract_id,
+            "method": self.method,
+            "args": self.args,
+        })
+        .to_string()
     }
 }

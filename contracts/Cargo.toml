@@ -1,14 +1,11 @@
 [package]
 name = "contracts"
-version = "0.1.0"
-edition = "2024"
+version.workspace = true
+edition.workspace = true
 
 [lib]
-crate-type = ["lib", "cdylib"]
+crate-type = ["cdylib"]
 doctest = false
 
 [dependencies]
-soroban-sdk = { workspace = true }
-
-[dev-dependencies]
 soroban-sdk = { workspace = true, features = ["testutils"] }
