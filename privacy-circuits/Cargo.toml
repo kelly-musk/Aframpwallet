@@ -1,0 +1,18 @@
+[package]
+name = "privacy-circuits"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ark-bn254 = { workspace = true }
+ark-ff = "0.4"
+ark-groth16 = { workspace = true }
+ark-serialize = { workspace = true }
+ark-std = { workspace = true }
+ark-relations = { workspace = true }
+ark-r1cs-std = { workspace = true }
+ark-snark = "0.4"
+hex = { workspace = true }
+rand = { workspace = true }
+blake3 = { workspace = true }
+anyhow = { workspace = true }

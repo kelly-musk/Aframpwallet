@@ -1,0 +1,23 @@
+[package]
+name = "privacy-contract"
+version = "0.1.0"
+edition = "2021"
+publish = false
+rust-version = "1.74.0"
+
+[lib]
+crate-type = ["cdylib"]
+doctest = false
+
+[dependencies]
+soroban-sdk = "27.0.0-rc.1"
+
+[dev-dependencies]
+soroban-sdk = { version = "27.0.0-rc.1", features = ["testutils"] }
+privacy-circuits = { path = "../privacy-circuits" }
+ark-bn254 = "0.4"
+ark-serialize = "0.4"
+ark-ff = "0.4"
+ark-groth16 = "0.4"
+rand = "0.8"
+

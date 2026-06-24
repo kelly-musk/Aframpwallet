@@ -1,0 +1,15 @@
+[package]
+name = "privacy-cli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+privacy-circuits = { path = "../privacy-circuits" }
+ark-serialize = { workspace = true }
+ark-bn254 = { workspace = true }
+ark-ff = "0.4"
+ark-groth16 = { workspace = true }
+hex = "0.4"
+rand = "0.8"
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }

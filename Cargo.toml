@@ -1,25 +1,46 @@
 [workspace]
-resolver = "3"
-members = ["contracts", "circuits", "wallet-core", "wallet-wasm", "wallet-server", "cli"]
-
-[workspace.package]
-version = "0.1.0"
-edition = "2024"
+members = [
+    "privacy-circuits",
+    "privacy-contract",
+    "privacy-utils",
+    "privacy-cli",
+    "merchant-api",
+    "pos-client",
+]
+resolver = "2"
 
 [workspace.dependencies]
-soroban-sdk = "21.0.0"
-ark-bn254 = { version = "0.5", features = ["r1cs"] }
-ark-ed-on-bn254 = { version = "0.5", features = ["r1cs"] }
-ark-groth16 = "0.5"
-ark-serialize = "0.5"
-ark-relations = "0.5"
-ark-r1cs-std = "0.5"
-ark-snark = "0.5"
-ark-std = "0.5"
-ark-ff = "0.5"
-ark-ec = "0.5"
-wasm-bindgen = "0.2"
-rand = "0.8"
+# ZK Cryptography
+ark-bn254 = "0.4.0"
+ark-groth16 = "0.4.0"
+ark-serialize = "0.4.0"
+ark-std = "0.4.0"
+ark-relations = "0.4.0"
+ark-r1cs-std = "0.4.0"
+
+# Stellar
+soroban-sdk = "27.0.0-rc.1"
+stellar-strkey = "0.0.9"
+
+# Web
+axum = "0.7"
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Utilities
 hex = "0.4"
+rand = "0.8"
 blake3 = "1.5"
-serde = { version = "1", features = ["derive"] }
+anyhow = "1.0"
+thiserror = "1.0"
+
+[profile.release]
+opt-level = "z"
+overflow-checks = true
+debug = 0
+strip = "symbols"
+debug-assertions = false
+panic = "abort"
+codegen-units = 1
+lto = true

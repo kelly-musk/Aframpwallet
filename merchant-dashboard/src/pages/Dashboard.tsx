@@ -1,0 +1,128 @@
+import { useQuery } from '@tanstack/react-query';
+import { NavLink } from 'react-router-dom';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Bar } from 'react-chartjs-2';
+import { MerchantAPI } from '../services/api';
+import StatsCard from '../components/StatsCard';
+import { formatDate } from '../utils/format';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+
+export default function Dashboard() {
+  const { data: stats, isLoading, error } = useQuery({
+    queryKey: ['dashboard-stats'],
+    queryFn: MerchantAPI.getDashboardStats,
+    refetchInterval: 30000,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-500">Loading dashboard...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+        Error loading dashboard data
+      </div>
+    );
+  }
+
+  if (!stats) return null;
+
+  const chartData = {
+    labels: stats.daily_volume.map((d) => d.date),
+    datasets: [
+      {
+        label: 'Daily Volume (USD)',
+        data: stats.daily_volume.map((d) => d.volume / 100),
+        backgroundColor: 'rgba(59, 130, 246, 0.5)',
+        borderColor: 'rgba(59, 130, 246, 1)',
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (context: any) => `$${context.parsed.y.toFixed(2)}`,
+        },
+      },
+    },
+    scales: {
+      y: {
+        ticks: {
+          callback: (value: any) => `$${value.toFixed(2)}`,
+        },
+      },
+    },
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <StatsCard title="Total Volume" value={stats.total_volume_usd} icon="💰" color="blue" />
+        <StatsCard title="Transactions" value={stats.transaction_count.toString()} icon="📊" color="green" />
+        <StatsCard title="Average" value={stats.average_transaction} icon="📈" color="purple" />
+        <StatsCard title="Active Days" value={stats.daily_volume.length.toString()} icon="📅" color="orange" />
+      </div>
+
+      <div className="bg-white rounded-lg shadow p-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Daily Volume</h2>
+        <div className="h-64">
+          <Bar data={chartData} options={chartOptions} />
+        </div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow">
+        <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+          <h2 className="text-lg font-semibold text-gray-900">Recent Transactions</h2>
+          <NavLink to="/transactions" className="text-blue-500 hover:text-blue-600 text-sm">
+            View All →
+          </NavLink>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {stats.recent_payments.slice(0, 5).map((payment) => (
+                <tr key={payment.tx_hash} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 text-sm text-gray-900">{formatDate(payment.datetime)}</td>
+                  <td className="px-6 py-4 text-sm font-medium text-gray-900">{payment.amount_usd}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{payment.customer_id}</td>
+                  <td className="px-6 py-4">
+                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                      {payment.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
