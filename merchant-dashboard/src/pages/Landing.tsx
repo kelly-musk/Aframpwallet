@@ -3,6 +3,45 @@ import { Link } from 'react-router-dom';
 export default function Landing() {
   return (
     <div className="bg-black text-white min-h-screen">
+      {/* Navbar */}
+      <nav className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo and product name */}
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-green-500 rounded-lg flex items-center justify-center">
+                <span className="font-bold text-black text-sm">A</span>
+              </div>
+              <div>
+                <h1 className="text-xl font-bold tracking-tight">Aframp</h1>
+                <p className="text-xs text-gray-400">Zero-Knowledge Payments</p>
+              </div>
+            </div>
+
+            {/* Navigation links */}
+            <div className="hidden md:flex items-center gap-8">
+              <a href="#why" className="text-gray-400 hover:text-emerald-400 transition-colors text-sm font-medium">
+                Why Aframp
+              </a>
+              <a href="#how" className="text-gray-400 hover:text-emerald-400 transition-colors text-sm font-medium">
+                How It Works
+              </a>
+              <a href="https://github.com/kelly-musk/Aframpwallet" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-emerald-400 transition-colors text-sm font-medium">
+                GitHub
+              </a>
+            </div>
+
+            {/* CTA Button */}
+            <Link
+              to="/dashboard"
+              className="px-6 py-2 rounded-lg bg-emerald-500 text-black font-bold text-sm hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/30"
+            >
+              Launch App
+            </Link>
+          </div>
+        </div>
+      </nav>
+
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
         {/* Animated background elements */}
