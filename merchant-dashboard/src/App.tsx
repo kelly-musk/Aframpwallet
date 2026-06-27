@@ -4,6 +4,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import AppLayout from './components/AppLayout';
+import Landing from './pages/Landing';
 import Home from './pages/Home';
 import Features from './pages/Features';
 import Developers from './pages/Developers';
@@ -13,6 +14,7 @@ import Dashboard from './pages/Dashboard';
 import Transactions from './pages/Transactions';
 import Compliance from './pages/Compliance';
 import Settings from './pages/Settings';
+import Reports from './pages/Reports';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -31,6 +33,14 @@ function App() {
         <Routes>
           <Route
             path="/"
+            element={
+              <div className="min-h-screen bg-black">
+                <Landing />
+              </div>
+            }
+          />
+          <Route
+            path="/home"
             element={
               <div className="min-h-screen bg-white">
                 <Navbar />
@@ -95,6 +105,9 @@ function App() {
           </Route>
           <Route path="/transactions" element={<AppLayout />}>
             <Route index element={<Transactions />} />
+          </Route>
+          <Route path="/reports" element={<AppLayout />}>
+            <Route index element={<Reports />} />
           </Route>
           <Route path="/compliance" element={<AppLayout />}>
             <Route index element={<Compliance />} />
