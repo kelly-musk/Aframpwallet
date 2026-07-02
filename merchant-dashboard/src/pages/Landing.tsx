@@ -1,378 +1,376 @@
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+
+const features = [
+  {
+    icon: (
+      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+      </svg>
+    ),
+    title: 'Zero-Knowledge Proofs',
+    desc: 'Every payment is verified using Groth16 ZK proofs on Stellar. Amounts, customer IDs, and merchant relationships stay cryptographically hidden.',
+    cta: 'How it works',
+    href: '/developers',
+  },
+  {
+    icon: (
+      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z" />
+      </svg>
+    ),
+    title: 'Client-Side WASM Prover',
+    desc: 'ZK proofs are generated entirely in the browser via WebAssembly. Your merchant secret never leaves the device — no server relay, no trusted third party.',
+    cta: 'Try the demo',
+    href: '/pay',
+  },
+  {
+    icon: (
+      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+      </svg>
+    ),
+    title: 'Viewing Keys',
+    desc: 'Generate cryptographic viewing keys to selectively share transaction details with auditors, accountants, or regulators — without compromising your master secret.',
+    cta: 'Learn more',
+    href: '/compliance',
+  },
+]
+
+const pillars = [
+  {
+    icon: (
+      <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+      </svg>
+    ),
+    title: 'Private by Default',
+    desc: 'Payment amounts and customer data are encrypted end-to-end. Only the merchant can decrypt using their secret viewing key.',
+  },
+  {
+    icon: (
+      <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    ),
+    title: 'Fully Auditable',
+    desc: 'Optional viewing keys let you share encrypted transaction data with auditors and regulators while maintaining overall privacy guarantees.',
+  },
+  {
+    icon: (
+      <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+      </svg>
+    ),
+    title: 'Built on Stellar',
+    desc: 'Leverages Stellar for fast (3-5s), low-cost settlement. No gas fees, no congestion — just instant, private transactions.',
+  },
+]
+
+const faqs = [
+  {
+    q: 'How does Aframp protect payment privacy?',
+    a: 'Aframp uses Groth16 zero-knowledge proofs on the BN254 curve. When a customer makes a payment, their client generates a ZK proof that encodes the payment amount, merchant ID, and a unique nullifier — all without revealing any of these values. The proof is verified on-chain by a Soroban smart contract, and only the merchant can decrypt the actual payment data using their secret viewing key.',
+  },
+  {
+    q: 'What is a viewing key and how do I use it?',
+    a: 'A viewing key is a cryptographic key derived from your merchant secret that can selectively decrypt payment data. You can generate multiple viewing keys to share with auditors, accountants, or compliance officers — each key provides access to specific subsets of transaction data without exposing your master merchant secret.',
+  },
+  {
+    q: 'Is Aframp production ready?',
+    a: 'Aframp is currently deployed on Stellar Testnet for testing and integration. The protocol uses standard cryptographic primitives (Groth16 on BN254) that are widely used in production privacy systems. We recommend thorough testing before mainnet deployment.',
+  },
+  {
+    q: 'How do I integrate Aframp with my POS system?',
+    a: 'Integration is straightforward. Deploy the Soroban verifier contract, generate your merchant keys, and add the Aframp SDK to your POS client. Your customers scan a QR code on their phone, enter the amount, and the payment proof is generated in-browser via WASM — no server-side changes required.',
+  },
+  {
+    q: 'What makes Aframp different from other privacy solutions?',
+    a: 'Unlike general-purpose privacy protocols, Aframp is purpose-built for merchant payments. It operates client-side (no relayer), leverages Stellar\'s fast settlement (3-5 seconds), and includes compliance features like viewing keys and audit-ready reporting out of the box.',
+  },
+]
+
+const trustBadges = [
+  { name: 'Stellar', href: 'https://stellar.org' },
+  { name: 'Soroban', href: '#' },
+  { name: 'WebAssembly', href: '#' },
+  { name: 'Groth16', href: '#' },
+  { name: 'BN254', href: '#' },
+]
 
 export default function Landing() {
+  const [scrolled, setScrolled] = useState(false)
+  const [openFaq, setOpenFaq] = useState<number | null>(null)
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
   return (
-    <div className="bg-black text-white min-h-screen">
-      {/* Navbar */}
-      <nav className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
+    <div className="bg-[#0a0a0f] text-white min-h-screen">
+      {/* ── Fixed Navbar ── */}
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled ? 'bg-gray-950/80 backdrop-blur-xl border-b border-gray-800/50' : 'bg-transparent'
+      }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Logo and product name */}
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-green-500 rounded-lg flex items-center justify-center">
-                <span className="font-bold text-black text-sm">A</span>
+            <Link to="/" className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                  <path d="M2 17l10 5 10-5" />
+                  <path d="M2 12l10 5 10-5" />
+                </svg>
               </div>
-              <div>
-                <h1 className="text-xl font-bold tracking-tight">Aframp</h1>
-                <p className="text-xs text-gray-400">Privacy Layer for Merchants</p>
-              </div>
-            </div>
-
-            {/* Navigation links */}
-            <div className="hidden md:flex items-center gap-8">
-              <a href="#features" className="text-gray-400 hover:text-emerald-400 transition-colors text-sm font-medium">
-                Features
-              </a>
-              <a href="#how" className="text-gray-400 hover:text-emerald-400 transition-colors text-sm font-medium">
-                How It Works
-              </a>
-              <a href="#merchants" className="text-gray-400 hover:text-emerald-400 transition-colors text-sm font-medium">
-                For Merchants
-              </a>
-              <a href="https://github.com/kelly-musk/Aframpwallet" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-emerald-400 transition-colors text-sm font-medium">
-                GitHub
-              </a>
-            </div>
-
-            {/* CTA Button */}
-            <Link
-              to="/dashboard"
-              className="px-6 py-2 rounded-lg bg-emerald-500 text-black font-bold text-sm hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/30"
-            >
-              Connect Wallet
+              <span className="text-lg font-bold text-white">Aframp</span>
             </Link>
+
+            <div className="hidden md:flex items-center gap-8">
+              <a href="#features" className="text-sm text-gray-400 hover:text-white transition-colors">Features</a>
+              <Link to="/dashboard" className="text-sm text-gray-400 hover:text-white transition-colors">Console</Link>
+              <Link to="/developers" className="text-sm text-gray-400 hover:text-white transition-colors">Developers</Link>
+              <Link to="/about" className="text-sm text-gray-400 hover:text-white transition-colors">About</Link>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <Link
+                to="/dashboard"
+                className="hidden sm:inline-flex items-center px-4 py-2 rounded-lg bg-green-500 text-white text-sm font-medium hover:bg-green-400 transition-colors"
+              >
+                Launch Console
+              </Link>
+            </div>
           </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-        {/* Animated background */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-10 w-72 h-72 bg-green-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        </div>
+      {/* ── Hero ── */}
+      <section className="relative pt-36 pb-28 md:pt-44 md:pb-36 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-green-500/5 via-transparent to-transparent" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[900px] h-[700px] bg-green-500/8 rounded-full blur-3xl" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-medium mb-8">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              Now Live on Stellar Testnet
+            </div>
 
-        {/* Content */}
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            {/* Left side - Text */}
-            <div>
-              <h1 className="text-5xl sm:text-6xl font-bold mb-6 leading-tight">
-                Aframp is Privacy
-                <br />
-                <span className="bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent">
-                  for Stellar
-                </span>
-              </h1>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tight">
+              <span className="text-white">Zero-Knowledge Privacy</span>
+              <br />
+              <span className="bg-gradient-to-r from-green-300 via-green-400 to-green-500 bg-clip-text text-transparent">
+                for Stellar Payments
+              </span>
+            </h1>
 
-              <p className="text-lg text-gray-400 mb-8 leading-relaxed">
-                Zero-knowledge proofs wrap your Stellar payments. The blockchain sees only a validity proof and nullifier—nothing else. Your revenue, customers, and business relationships stay hidden.
-              </p>
+            <p className="mt-6 text-lg sm:text-xl text-gray-400 leading-relaxed max-w-2xl mx-auto">
+              Aframp is a zero-knowledge privacy layer for merchants on Stellar. 
+              Hide payment amounts, protect customer identities, and keep business 
+              relationships confidential — while maintaining verifiability and compliance.
+            </p>
 
-              {/* Live badge */}
-              <div className="flex items-center gap-2 mb-10 text-sm text-emerald-400">
-                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                <span>Now live on Stellar Testnet</span>
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link
+                to="/dashboard"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-green-500 text-white font-medium hover:bg-green-400 transition-colors shadow-lg shadow-green-500/25"
+              >
+                Launch Console
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+              </Link>
+              <a
+                href="https://github.com/kelly-musk/Aframpwallet"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-gray-700 text-gray-300 font-medium hover:bg-gray-800 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+                </svg>
+                View on GitHub
+              </a>
+            </div>
+
+            {/* Trust Badges */}
+            <div className="mt-16">
+              <p className="text-xs text-gray-500 uppercase tracking-widest mb-6">Built with</p>
+              <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
+                {trustBadges.map((badge) => (
+                  <span key={badge.name} className="text-sm font-medium text-gray-600">
+                    {badge.name}
+                  </span>
+                ))}
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-              {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4">
+      {/* ── Features ── */}
+      <section id="features" className="py-24 relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white">
+              Everything you need for private payments
+            </h2>
+            <p className="mt-4 text-gray-400">
+              A complete privacy stack for merchants — from in-browser proof generation to compliance reporting.
+            </p>
+          </div>
+
+          <div className="mt-16 grid md:grid-cols-3 gap-6">
+            {features.map((f) => (
+              <div
+                key={f.title}
+                className="group relative p-8 rounded-2xl bg-gray-900/50 border border-gray-800 hover:border-green-500/30 transition-all duration-300"
+              >
+                <div className="w-12 h-12 rounded-xl bg-green-500/10 text-green-400 flex items-center justify-center mb-5 group-hover:bg-green-500/20 transition-colors">
+                  {f.icon}
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-3">{f.title}</h3>
+                <p className="text-sm text-gray-400 leading-relaxed mb-6">{f.desc}</p>
                 <Link
-                  to="/dashboard"
-                  className="px-8 py-3 rounded-lg bg-emerald-500 text-black font-bold hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/30 text-center"
+                  to={f.href}
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-green-400 hover:text-green-300 transition-colors"
                 >
-                  Connect Wallet
+                  {f.cta}
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                  </svg>
                 </Link>
-                <a
-                  href="https://github.com/kelly-musk/Aframpwallet#quick-start"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-8 py-3 rounded-lg border border-gray-700 text-white font-bold hover:border-emerald-500 hover:text-emerald-400 hover:bg-emerald-500/5 transition-all text-center"
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Value Pillars ── */}
+      <section className="py-24 border-t border-gray-800/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-3 gap-12">
+            {pillars.map((p) => (
+              <div key={p.title} className="text-center">
+                <div className="w-16 h-16 rounded-2xl bg-green-500/10 text-green-400 flex items-center justify-center mx-auto mb-5">
+                  {p.icon}
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-3">{p.title}</h3>
+                <p className="text-sm text-gray-400 leading-relaxed max-w-xs mx-auto">{p.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section className="py-24 border-t border-gray-800/50">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white">Frequently Asked Questions</h2>
+          </div>
+
+          <div className="space-y-3">
+            {faqs.map((faq, i) => (
+              <div
+                key={i}
+                className="rounded-xl border border-gray-800 overflow-hidden transition-colors hover:border-gray-700"
+              >
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full flex items-center justify-between px-6 py-4 text-left text-sm font-medium text-white hover:bg-gray-800/50 transition-colors cursor-pointer"
                 >
-                  Read Docs
-                </a>
-              </div>
-
-              {/* Available on */}
-              <div className="mt-10">
-                <p className="text-xs text-gray-500 mb-3">Available on</p>
-                <div className="flex gap-4">
-                  <a href="https://stellar.org" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-emerald-400 transition-colors text-sm">
-                    Stellar Network
-                  </a>
-                  <a href="https://github.com/kelly-musk/Aframpwallet" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-emerald-400 transition-colors text-sm">
-                    GitHub
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* Right side - Visual mockup area */}
-            <div className="hidden md:flex items-center justify-center">
-              <div className="relative w-full aspect-square">
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-green-500/20 rounded-3xl blur-2xl"></div>
-                <div className="absolute inset-0 border border-emerald-500/30 rounded-3xl flex items-center justify-center">
-                  <div className="text-center p-8">
-                    <div className="text-6xl mb-4">🔐</div>
-                    <p className="text-gray-300 font-semibold">Zero-Knowledge</p>
-                    <p className="text-gray-400 text-sm mt-2">Payments on Stellar</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Key Features - Quick Overview */}
-      <section className="relative py-20 border-t border-gray-800 bg-black/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { icon: '🔐', title: 'Privately Hold and Transact Crypto', desc: 'Fully encrypted and private transactions by default.' },
-              { icon: '✓', title: 'Privacy Made Easy', desc: 'Explore private transactions with a familiar crypto interface.' },
-              { icon: '⚡', title: 'Cutting-edge Encryption', desc: 'Revolutionary Zero-Knowledge Proof encryption operating locally.' },
-            ].map((item, idx) => (
-              <div key={idx} className="p-6 rounded-lg border border-gray-800 hover:border-emerald-500/50 transition-all">
-                <div className="text-4xl mb-3">{item.icon}</div>
-                <h3 className="font-bold text-lg mb-2">{item.title}</h3>
-                <p className="text-gray-400 text-sm">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Main Features Section */}
-      <section id="features" className="relative py-24 border-t border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <p className="text-emerald-400 font-semibold mb-2 uppercase tracking-wider text-sm">OUR SOLUTION</p>
-            <h2 className="text-4xl sm:text-5xl font-bold mb-4">Unparalleled Merchant Privacy</h2>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-              Private transactions with zero-knowledge proofs. Safeguard your digital assets and business relationships like never before.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { icon: '🔐', title: 'Complete Privacy', desc: 'Payment amounts, customer identities, and merchant relationships stay hidden.' },
-              { icon: '✓', title: 'Fraud-Proof', desc: 'Groth16 ZK proofs ensure payment validity. Double-spending prevented via nullifiers.' },
-              { icon: '⚖️', title: 'Regulatory Ready', desc: 'Selective disclosure viewing keys for compliance audits when needed.' },
-              { icon: '⚡', title: 'Instant Settlement', desc: '3-5 second settlements on Stellar with near-zero fees.' },
-              { icon: '🔑', title: 'No Trust Assumptions', desc: 'Merchant runs proving system. Your secret never leaves your control.' },
-              { icon: '🔓', title: 'Open Source', desc: 'Fully auditable. Built with arkworks Groth16 on BN254 curve.' },
-            ].map((feature, idx) => (
-              <div key={idx} className="p-8 rounded-2xl border border-gray-800 hover:border-emerald-500/50 transition-all hover:bg-emerald-500/5 group">
-                <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">{feature.icon}</div>
-                <h3 className="font-bold text-lg mb-3">{feature.title}</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">{feature.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Why Choose Us */}
-      <section className="relative py-24 border-t border-gray-800 bg-black/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <p className="text-emerald-400 font-semibold mb-2 uppercase tracking-wider text-sm">WHY CHOOSE US</p>
-            <h2 className="text-4xl sm:text-5xl font-bold mb-4">Why Switch to ZK Privacy?</h2>
-            <p className="text-gray-400 text-lg">
-              Stellar scalability and Zcash privacy, all in one network.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {[
-              { title: 'Privacy by Default', desc: 'Hidden transactions are the norm, not an add-on.' },
-              { title: 'Merchant Control', desc: 'You decide what data to reveal and when.' },
-              { title: 'Regulatory Path', desc: 'Selective disclosure satisfies compliance requirements.' },
-              { title: 'No Intermediaries', desc: 'Direct settlement without trusted third parties.' },
-            ].map((item, idx) => (
-              <div key={idx} className="p-6 rounded-lg border border-gray-800 hover:border-emerald-500/50 transition-all">
-                <h3 className="font-bold mb-2">{item.title}</h3>
-                <p className="text-gray-400 text-sm">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="bg-emerald-500/5 border border-emerald-500/30 rounded-lg p-8 text-center">
-            <p className="text-gray-400 mb-4">Want to learn more about the technology?</p>
-            <a href="https://github.com/kelly-musk/Aframpwallet#how-it-works" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 font-semibold">
-              Learn more about ZK architecture →
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section id="how" className="relative py-24 border-t border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <p className="text-emerald-400 font-semibold mb-2 uppercase tracking-wider text-sm">TECHNICAL FLOW</p>
-            <h2 className="text-4xl sm:text-5xl font-bold mb-4">How It Works</h2>
-            <p className="text-gray-400 text-lg">4-constraint ZK proof system protecting your payments</p>
-          </div>
-
-          <div className="grid md:grid-cols-4 gap-4 mb-12">
-            {[
-              { num: '1', title: 'Merchant Secret', desc: '32-byte seed generates unique identity' },
-              { num: '2', title: 'Build Proof', desc: '4 constraints protect transaction data' },
-              { num: '3', title: 'Verify', desc: 'Soroban contract checks BN254 pairing' },
-              { num: '4', title: 'Settle', desc: 'Only proof and nullifier recorded on-chain' },
-            ].map((step, idx) => (
-              <div key={idx} className="relative">
-                <div className="p-6 rounded-lg border border-gray-800 bg-black">
-                  <div className="absolute -top-4 -left-4 w-8 h-8 rounded-full bg-emerald-500 text-black font-bold flex items-center justify-center text-sm">
-                    {step.num}
-                  </div>
-                  <h3 className="font-bold mt-2 mb-2">{step.title}</h3>
-                  <p className="text-gray-400 text-sm">{step.desc}</p>
-                </div>
-                {idx < 3 && (
-                  <div className="hidden md:flex absolute top-1/2 -right-2 w-4 justify-center">
-                    <svg className="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
+                  {faq.q}
+                  <svg
+                    className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${
+                      openFaq === i ? 'rotate-180' : ''
+                    }`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="2"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                  </svg>
+                </button>
+                {openFaq === i && (
+                  <div className="px-6 pb-4 text-sm text-gray-400 leading-relaxed">
+                    {faq.a}
                   </div>
                 )}
               </div>
             ))}
           </div>
+        </div>
+      </section>
 
-          <div className="bg-gray-950 border border-gray-800 rounded-lg p-8">
-            <h3 className="font-bold text-lg mb-4">Circuit Constraints</h3>
-            <div className="grid md:grid-cols-2 gap-6 text-sm text-gray-400">
-              <div>
-                <p className="text-emerald-400 font-mono mb-2">merchant_id = secret × 2</p>
-                <p className="text-xs">Merchant identity derived from seed</p>
-              </div>
-              <div>
-                <p className="text-emerald-400 font-mono mb-2">nullifier = secret + amount</p>
-                <p className="text-xs">Unique per payment, prevents double-spend</p>
-              </div>
-              <div>
-                <p className="text-emerald-400 font-mono mb-2">commitment = secret × amount × customer</p>
-                <p className="text-xs">Binds payment to customer</p>
-              </div>
-              <div>
-                <p className="text-emerald-400 font-mono mb-2">amount × inv(amount) = 1</p>
-                <p className="text-xs">Ensures non-zero amount</p>
-              </div>
+      {/* ── CTA ── */}
+      <section className="py-24 border-t border-gray-800/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-2xl mx-auto text-center">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white leading-tight">
+              Ready for private payments on Stellar?
+            </h2>
+            <p className="mt-4 text-gray-400">
+              Launch your merchant console, deploy the privacy contract, and start accepting private payments in minutes.
+            </p>
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link
+                to="/dashboard"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-green-500 text-white font-medium hover:bg-green-400 transition-colors shadow-lg shadow-green-500/25"
+              >
+                Get Started Free
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+              </Link>
+              <Link
+                to="/developers"
+                className="inline-flex items-center px-6 py-3 rounded-xl border border-gray-700 text-gray-300 font-medium hover:bg-gray-800 transition-colors"
+              >
+                Read Documentation
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* For Merchants */}
-      <section id="merchants" className="relative py-24 border-t border-gray-800 bg-black/50">
+      {/* ── Footer ── */}
+      <footer className="border-t border-gray-800/50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <p className="text-emerald-400 font-semibold mb-2 uppercase tracking-wider text-sm">REAL WORLD USE CASES</p>
-            <h2 className="text-4xl sm:text-5xl font-bold mb-4">Built for Real Merchants</h2>
-            <p className="text-gray-400 text-lg">Industries where payment privacy is a requirement</p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { icon: '🏢', title: 'B2B Payments', desc: 'Hide revenue and terms from competitors' },
-              { icon: '⚕️', title: 'Healthcare', desc: 'GDPR-compliant patient payment privacy' },
-              { icon: '⚖️', title: 'Legal Services', desc: 'Confidential client financial records' },
-              { icon: '💎', title: 'Luxury Retail', desc: 'Protect customer identities and purchase history' },
-            ].map((use, idx) => (
-              <div key={idx} className="p-6 rounded-lg border border-gray-800 hover:border-emerald-500/50 transition-all hover:bg-emerald-500/5">
-                <div className="text-4xl mb-3">{use.icon}</div>
-                <h3 className="font-bold mb-2">{use.title}</h3>
-                <p className="text-gray-400 text-sm">{use.desc}</p>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                  <path d="M2 17l10 5 10-5" />
+                  <path d="M2 12l10 5 10-5" />
+                </svg>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Expert Tools / Tech Stack */}
-      <section className="relative py-24 border-t border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <p className="text-emerald-400 font-semibold mb-2 uppercase tracking-wider text-sm">EXPERT TOOLS</p>
-            <h2 className="text-4xl sm:text-5xl font-bold mb-4">Enterprise-Grade Stack</h2>
-            <p className="text-gray-400 text-lg">Built with proven cryptography and Stellar infrastructure</p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { name: 'Groth16 Proofs', desc: 'BN254 elliptic curve proving system' },
-              { name: 'Soroban Contracts', desc: 'Stellar Protocol 25+ verification layer' },
-              { name: 'arkworks 0.4', desc: 'High-performance ZK framework in Rust' },
-              { name: 'React 19', desc: 'Modern merchant dashboard interface' },
-              { name: 'Stellar Testnet', desc: 'Live testing and deployment' },
-              { name: 'Open Source', desc: 'MIT licensed, full transparency' }
-            ].map((tech, idx) => (
-              <div key={idx} className="p-4 rounded-lg border border-gray-800 hover:border-emerald-500/30 transition-all">
-                <h3 className="font-bold text-emerald-400 mb-1">{tech.name}</h3>
-                <p className="text-gray-400 text-sm">{tech.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="relative py-24 border-t border-gray-800">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl sm:text-5xl font-bold mb-6">Ready for Private Payments?</h2>
-          <p className="text-gray-400 text-lg mb-12">
-            Deploy your privacy layer on Stellar testnet. Control your data, protect your merchants.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              to="/dashboard"
-              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3 rounded-lg bg-emerald-500 text-black font-bold hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/30"
-            >
-              Connect Wallet
-              <svg className="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </Link>
-            <a
-              href="https://github.com/kelly-musk/Aframpwallet"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3 rounded-lg border border-gray-700 text-white font-bold hover:border-emerald-500 hover:text-emerald-400 hover:bg-emerald-500/5 transition-all"
-            >
-              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v 3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-              </svg>
-              GitHub
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-gray-800 py-12 bg-black/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div>
-              <p className="text-gray-400 text-sm">© 2024 Aframp. Zero-knowledge privacy for Stellar merchants.</p>
+              <span className="text-sm font-semibold text-white">Aframp</span>
             </div>
-            <div className="flex gap-6">
-              <a href="https://github.com/kelly-musk/Aframpwallet#quick-start" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-emerald-400 transition-colors text-sm">
-                Quick Start
+            <p className="text-sm text-gray-500">
+              &copy; {new Date().getFullYear()} Aframp. All rights reserved.
+            </p>
+            <div className="flex items-center gap-6">
+              <a href="https://github.com/kelly-musk/Aframpwallet" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors">
+                <span className="sr-only">GitHub</span>
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+                </svg>
               </a>
-              <a href="https://github.com/kelly-musk/Aframpwallet" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-emerald-400 transition-colors text-sm">
-                GitHub
-              </a>
-              <a href="https://stellar.org" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-emerald-400 transition-colors text-sm">
-                Built on Stellar
+              <a href="#" className="text-gray-500 hover:text-white transition-colors">
+                <span className="sr-only">Twitter</span>
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+                </svg>
               </a>
             </div>
           </div>
         </div>
       </footer>
     </div>
-  );
+  )
 }

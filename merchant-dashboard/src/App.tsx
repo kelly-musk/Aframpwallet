@@ -35,7 +35,7 @@ function App() {
           <Route
             path="/"
             element={
-              <div className="min-h-screen bg-black">
+              <div className="min-h-screen bg-[#0a0a0f]">
                 <Landing />
               </div>
             }
@@ -43,7 +43,7 @@ function App() {
           <Route
             path="/home"
             element={
-              <div className="min-h-screen bg-white">
+              <div className="min-h-screen bg-gray-950">
                 <Navbar />
                 <main>
                   <Home />
@@ -55,7 +55,7 @@ function App() {
           <Route
             path="/features"
             element={
-              <div className="min-h-screen bg-white">
+              <div className="min-h-screen bg-gray-950">
                 <Navbar />
                 <main>
                   <Features />
@@ -67,7 +67,7 @@ function App() {
           <Route
             path="/developers"
             element={
-              <div className="min-h-screen bg-white">
+              <div className="min-h-screen bg-gray-950">
                 <Navbar />
                 <main>
                   <Developers />
@@ -79,7 +79,7 @@ function App() {
           <Route
             path="/about"
             element={
-              <div className="min-h-screen bg-white">
+              <div className="min-h-screen bg-gray-950">
                 <Navbar />
                 <main>
                   <About />
@@ -91,7 +91,7 @@ function App() {
           <Route
             path="/onboard"
             element={
-              <div className="min-h-screen bg-white">
+              <div className="min-h-screen bg-gray-950">
                 <Navbar />
                 <main>
                   <Onboarding />
@@ -101,13 +101,14 @@ function App() {
             }
           />
 
+          {/* Console pages - inside AppLayout sidebar */}
           <Route path="/dashboard" element={<AppLayout />}>
             <Route index element={<Dashboard />} />
           </Route>
           <Route path="/transactions" element={<AppLayout />}>
             <Route index element={<Transactions />} />
           </Route>
-          <Route path="/reports" element={<AppLayout />}>
+          <Route path="/distribution" element={<AppLayout />}>
             <Route index element={<Reports />} />
           </Route>
           <Route path="/compliance" element={<AppLayout />}>
@@ -116,19 +117,9 @@ function App() {
           <Route path="/settings" element={<AppLayout />}>
             <Route index element={<Settings />} />
           </Route>
-
-          <Route
-            path="/pay"
-            element={
-              <div className="min-h-screen bg-white">
-                <Navbar />
-                <main>
-                  <PaymentDemo />
-                </main>
-                <Footer />
-              </div>
-            }
-          />
+          <Route path="/pay" element={<AppLayout />}>
+            <Route index element={<PaymentDemo />} />
+          </Route>
         </Routes>
       </Router>
       <ReactQueryDevtools initialIsOpen={false} />

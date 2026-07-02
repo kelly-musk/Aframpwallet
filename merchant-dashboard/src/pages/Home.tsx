@@ -104,16 +104,16 @@ export default function Home() {
     <div>
       {/* ── Hero ── */}
       <section className="relative pt-32 pb-24 md:pt-40 md:pb-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-navy-50 via-white to-gold-50" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-gradient-to-br from-navy-100/40 to-gold-100/30 rounded-full blur-3xl" />
+          <div className="absolute inset-0 bg-gradient-to-br from-green-50 via-white to-green-50" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-gradient-to-br from-green-100/40 to-green-100/30 rounded-full blur-3xl" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center px-3 py-1 rounded-full bg-navy-100 text-navy-800 text-xs font-medium mb-6">
+            <div className="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-800 text-xs font-medium mb-6">
               Now live on Stellar Testnet
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-navy-950 leading-tight tracking-tight">
               Private Payments on{' '}
-              <span className="bg-gradient-to-r from-navy-600 to-gold-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent">
                 Stellar
               </span>
             </h1>
@@ -123,7 +123,7 @@ export default function Home() {
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
                 to="/onboard"
-                className="inline-flex items-center px-6 py-3 rounded-xl bg-navy-900 text-white font-medium hover:bg-navy-800 transition-colors shadow-lg shadow-navy-900/20"
+                className="inline-flex items-center px-6 py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-500 transition-colors shadow-lg shadow-green-600/20"
               >
                 Get Started Free
                 <svg className="ml-2 w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
@@ -151,7 +151,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-navy-950 leading-tight">
+              <h2 className="text-3xl sm:text-4xl font-bold text-white leading-tight">
                 Blockchain transparency is a feature — until it's your transaction
               </h2>
               <p className="mt-6 text-gray-600 leading-relaxed">
@@ -172,7 +172,7 @@ export default function Home() {
               </div>
             </div>
             <div className="relative">
-              <div className="bg-gray-50 rounded-2xl p-8 border border-gray-100">
+              <div className="bg-gray-900/50 rounded-2xl p-8 border border-gray-800">
                 <div className="space-y-6">
                   <div className="flex items-start space-x-4">
                     <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
@@ -181,7 +181,7 @@ export default function Home() {
                       </svg>
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">Without Aframp</p>
+                      <p className="font-medium text-white">Without Aframp</p>
                       <p className="text-sm text-gray-500 mt-1">Amount, sender, receiver visible to everyone. Competitors see your volume. Customers have no privacy.</p>
                     </div>
                   </div>
@@ -193,7 +193,7 @@ export default function Home() {
                         </svg>
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">With Aframp</p>
+                        <p className="font-medium text-white">With Aframp</p>
                         <p className="text-sm text-gray-500 mt-1">On-chain proof only. Amounts, customer IDs, and business relationships stay private. Merchant controls all data.</p>
                       </div>
                     </div>
@@ -215,8 +215,8 @@ export default function Home() {
           <div className="mt-16 grid md:grid-cols-4 gap-8">
             {steps.map((s) => (
               <div key={s.step} className="relative">
-                <div className="text-5xl font-bold text-navy-200 mb-4">{s.step}</div>
-                <h3 className="text-lg font-semibold text-navy-900 mb-2">{s.title}</h3>
+                <div className="text-5xl font-bold text-green-200 mb-4">{s.step}</div>
+                <h3 className="text-lg font-semibold text-white mb-2">{s.title}</h3>
                 <p className="text-sm text-gray-500 leading-relaxed">{s.desc}</p>
               </div>
             ))}
@@ -267,7 +267,7 @@ export default function Home() {
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl mx-auto text-center">
-            <h2 className="text-3xl sm:text-4xl font-bold text-navy-950 leading-tight">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white leading-tight">
               Ready for private Stellar payments?
             </h2>
             <p className="mt-4 text-gray-600">
@@ -276,7 +276,7 @@ export default function Home() {
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
                 to="/onboard"
-                className="inline-flex items-center px-6 py-3 rounded-xl bg-navy-900 text-white font-medium hover:bg-navy-800 transition-colors shadow-lg shadow-navy-900/20"
+                className="inline-flex items-center px-6 py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-500 transition-colors shadow-lg shadow-green-600/20"
               >
                 Get Started Free
                 <svg className="ml-2 w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">

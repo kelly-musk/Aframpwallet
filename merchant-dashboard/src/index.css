@@ -3,29 +3,29 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
-  --color-navy-50: #f0f4fe;
-  --color-navy-100: #dce6fb;
-  --color-navy-200: #c0d4f8;
-  --color-navy-300: #94b8f3;
-  --color-navy-400: #6193eb;
-  --color-navy-500: #3b71e3;
-  --color-navy-600: #2656d7;
-  --color-navy-700: #1d45c6;
-  --color-navy-800: #1c39a1;
-  --color-navy-900: #1a337f;
-  --color-navy-950: #0f1b45;
+  --color-green-50: #ecfdf5;
+  --color-green-100: #d1fae5;
+  --color-green-200: #a7f3d0;
+  --color-green-300: #6ee7b7;
+  --color-green-400: #34d399;
+  --color-green-500: #10b981;
+  --color-green-600: #059669;
+  --color-green-700: #047857;
+  --color-green-800: #065f46;
+  --color-green-900: #064e3b;
+  --color-green-950: #022c22;
 
-  --color-gold-50: #fefbe8;
-  --color-gold-100: #fef7c3;
-  --color-gold-200: #feee9a;
-  --color-gold-300: #fde060;
-  --color-gold-400: #fccc38;
-  --color-gold-500: #f6b112;
-  --color-gold-600: #da8c08;
-  --color-gold-700: #b5660a;
-  --color-gold-800: #904f10;
-  --color-gold-900: #764110;
-  --color-gold-950: #442104;
+  --color-navy-50: #ecfdf5;
+  --color-navy-100: #d1fae5;
+  --color-navy-200: #a7f3d0;
+  --color-navy-300: #6ee7b7;
+  --color-navy-400: #34d399;
+  --color-navy-500: #10b981;
+  --color-navy-600: #059669;
+  --color-navy-700: #047857;
+  --color-navy-800: #065f46;
+  --color-navy-900: #064e3b;
+  --color-navy-950: #022c22;
 }
 
 body {

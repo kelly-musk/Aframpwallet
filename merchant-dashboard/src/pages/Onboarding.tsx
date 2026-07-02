@@ -69,7 +69,7 @@ export default function Onboarding() {
   return (
     <div>
       <section className="relative pt-32 pb-24 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-navy-50 via-white to-gold-50" />
+        <div className="absolute inset-0 bg-gradient-to-br from-green-50 via-white to-green-50" />
         <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Progress bar */}
           <div className="mb-10">
@@ -77,7 +77,7 @@ export default function Onboarding() {
               {steps.map((s) => (
                 <div
                   key={s.num}
-                  className={`text-xs font-medium ${step >= s.num ? 'text-navy-700' : 'text-gray-400'}`}
+                  className={`text-xs font-medium ${step >= s.num ? 'text-green-700' : 'text-gray-400'}`}
                 >
                   {s.label}
                 </div>
@@ -85,7 +85,7 @@ export default function Onboarding() {
             </div>
             <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-navy-600 to-gold-500 rounded-full transition-all duration-500"
+                className="h-full bg-gradient-to-r from-green-600 to-green-400 rounded-full transition-all duration-500"
                 style={{ width: progress }}
               />
             </div>
@@ -94,7 +94,7 @@ export default function Onboarding() {
           {/* Step 1: Welcome */}
           {step === 1 && (
             <div className="text-center">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-navy-600 to-navy-800 flex items-center justify-center mx-auto mb-6">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-600 to-green-800 flex items-center justify-center mx-auto mb-6">
                 <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
                 </svg>
@@ -119,7 +119,7 @@ export default function Onboarding() {
               </div>
               <button
                 onClick={() => setStep(2)}
-                className="mt-10 inline-flex items-center px-6 py-3 rounded-xl bg-navy-900 text-white font-medium hover:bg-navy-800 transition-colors shadow-lg shadow-navy-900/20 cursor-pointer"
+                className="mt-10 inline-flex items-center px-6 py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-500 transition-colors shadow-lg shadow-green-600/20 cursor-pointer"
               >
                 Start Setup
                 <svg className="ml-2 w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
@@ -209,7 +209,7 @@ export default function Onboarding() {
               </div>
               <button
                 onClick={() => setStep(4)}
-                className="mt-8 inline-flex items-center px-6 py-3 rounded-xl bg-navy-900 text-white font-medium hover:bg-navy-800 transition-colors shadow-lg shadow-navy-900/20 cursor-pointer"
+                className="mt-8 inline-flex items-center px-6 py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-500 transition-colors shadow-lg shadow-green-600/20 cursor-pointer"
               >
                 I've Saved My Secret — Next
                 <svg className="ml-2 w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
