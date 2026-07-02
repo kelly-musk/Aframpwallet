@@ -1,22 +1,10 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 
-function useInView(threshold = 0.15) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [inView, setInView] = useState(false)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setInView(true); obs.disconnect() } },
-      { threshold },
-    )
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [threshold])
-
-  return [ref, inView] as const
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.15 } },
 }
 
 const features = [
@@ -120,14 +108,38 @@ const trustBadges = [
   { name: 'Tailwind CSS' },
 ]
 
+function Section({ children, className, id }: { children: React.ReactNode; className?: string; id?: string }) {
+  return (
+    <motion.section
+      id={id}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: '-60px' }}
+      variants={containerVariants}
+      className={className}
+    >
+      {children}
+    </motion.section>
+  )
+}
+
+function FadeUp({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.5, delay, ease: 'easeOut' }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
 export default function Landing() {
   const [scrolled, setScrolled] = useState(false)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
-  const [heroRef, heroIn] = useInView()
-  const [featuresRef, featuresIn] = useInView()
-  const [pillarsRef, pillarsIn] = useInView()
-  const [faqRef, faqIn] = useInView()
-  const [ctaRef, ctaIn] = useInView()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
@@ -138,9 +150,14 @@ export default function Landing() {
   return (
     <div className="bg-[#0a0a0f] text-white min-h-screen overflow-x-hidden">
       {/* ── Fixed Navbar ── */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled ? 'bg-gray-950/80 backdrop-blur-xl border-b border-gray-800/50' : 'bg-transparent'
-      }`}>
+      <motion.nav
+        initial={{ y: -80 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+          scrolled ? 'bg-gray-950/80 backdrop-blur-xl border-b border-gray-800/50' : 'bg-transparent'
+        }`}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="flex items-center gap-2">
@@ -169,45 +186,71 @@ export default function Landing() {
             </Link>
           </div>
         </div>
-      </nav>
+      </motion.nav>
 
       {/* ── Hero ── */}
-      <section
-        ref={heroRef}
-        className="relative pt-36 pb-28 md:pt-44 md:pb-36 overflow-hidden"
-      >
-        {/* Animated glow */}
-        <div className="absolute inset-0 bg-gradient-to-b from-green-500/5 via-transparent to-transparent animate-fade-in" />
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[900px] h-[700px] bg-green-500/10 rounded-full blur-3xl animate-glow-pulse" />
+      <section className="relative pt-36 pb-28 md:pt-44 md:pb-36 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-green-500/5 via-transparent to-transparent" />
+        <motion.div
+          animate={{ opacity: [0.3, 0.6, 0.3], scale: [1, 1.05, 1] }}
+          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[900px] h-[700px] bg-green-500/10 rounded-full blur-3xl"
+        />
 
-        {/* Floating decorative elements */}
-        <div className="absolute top-1/3 right-[10%] w-24 h-24 rounded-full bg-green-500/5 blur-2xl animate-float hidden lg:block" style={{ animationDelay: '0.5s' }} />
-        <div className="absolute bottom-1/4 left-[8%] w-32 h-32 rounded-full bg-green-400/5 blur-3xl animate-float hidden lg:block" style={{ animationDelay: '1s' }} />
+        <motion.div
+          animate={{ y: [0, -10, 0] }}
+          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+          className="absolute top-1/3 right-[10%] w-24 h-24 rounded-full bg-green-500/5 blur-2xl hidden lg:block"
+        />
+        <motion.div
+          animate={{ y: [0, -12, 0] }}
+          transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+          className="absolute bottom-1/4 left-[8%] w-32 h-32 rounded-full bg-green-400/5 blur-3xl hidden lg:block"
+        />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className={`max-w-4xl mx-auto text-center transition-all duration-700 ${
-            heroIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}>
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-medium mb-8">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-              Now Live on Stellar Testnet
-            </div>
+          <div className="max-w-4xl mx-auto text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-medium mb-8">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                Now Live on Stellar Testnet
+              </div>
+            </motion.div>
 
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tight">
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tight"
+            >
               <span className="text-white">Zero-Knowledge Privacy</span>
               <br />
               <span className="bg-gradient-to-r from-green-300 via-green-400 to-green-500 bg-clip-text text-transparent">
                 for Stellar Payments
               </span>
-            </h1>
+            </motion.h1>
 
-            <p className="mt-6 text-lg sm:text-xl text-gray-400 leading-relaxed max-w-2xl mx-auto">
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.35 }}
+              className="mt-6 text-lg sm:text-xl text-gray-400 leading-relaxed max-w-2xl mx-auto"
+            >
               Aframp is a zero-knowledge privacy layer for merchants on Stellar. 
               Hide payment amounts, protect customer identities, and keep business 
               relationships confidential — while maintaining verifiability and compliance.
-            </p>
+            </motion.p>
 
-            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+              className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
+            >
               <Link
                 to="/dashboard"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-green-500 text-white font-medium hover:bg-green-400 transition-all hover:shadow-xl hover:shadow-green-500/30 hover:-translate-y-0.5"
@@ -228,10 +271,15 @@ export default function Landing() {
                 </svg>
                 View on GitHub
               </a>
-            </div>
+            </motion.div>
 
             {/* Marquee Trust Badges */}
-            <div className="mt-20 overflow-hidden">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.65 }}
+              className="mt-20 overflow-hidden"
+            >
               <p className="text-xs text-gray-600 uppercase tracking-widest mb-6">Built with</p>
               <div className="relative">
                 <div className="flex marquee-track">
@@ -245,45 +293,48 @@ export default function Landing() {
                   ))}
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
       {/* ── Features ── */}
-      <section
-        id="features"
-        ref={featuresRef}
-        className="py-24 relative"
-      >
+      <Section id="features" className="py-24 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className={`text-center max-w-2xl mx-auto transition-all duration-700 ${
-            featuresIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white">
-              Everything you need for private payments
-            </h2>
-            <p className="mt-4 text-gray-400">
-              A complete privacy stack for merchants — from in-browser proof generation to compliance reporting.
-            </p>
-          </div>
+          <FadeUp>
+            <div className="text-center max-w-2xl mx-auto">
+              <h2 className="text-3xl sm:text-4xl font-bold text-white">
+                Everything you need for private payments
+              </h2>
+              <p className="mt-4 text-gray-400">
+                A complete privacy stack for merchants — from in-browser proof generation to compliance reporting.
+              </p>
+            </div>
+          </FadeUp>
 
-          <div className="mt-16 grid md:grid-cols-3 gap-6">
-            {features.map((f, i) => (
-              <div
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-40px' }}
+            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.15 } } }}
+            className="mt-16 grid md:grid-cols-3 gap-6"
+          >
+            {features.map((f) => (
+              <motion.div
                 key={f.title}
-                className={`group relative p-8 rounded-2xl bg-gray-900/50 border border-gray-800 hover:border-green-500/30 transition-all duration-500 ${
-                  featuresIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                }`}
-                style={{
-                  transitionDelay: `${i * 150}ms`,
-                  transitionProperty: 'opacity, transform, border-color',
-                  transitionDuration: '0.5s',
+                variants={{
+                  hidden: { opacity: 0, y: 24 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
                 }}
+                whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                className="group relative p-8 rounded-2xl bg-gray-900/50 border border-gray-800 hover:border-green-500/30 transition-colors duration-500"
               >
-                <div className="w-12 h-12 rounded-xl bg-green-500/10 text-green-400 flex items-center justify-center mb-5 group-hover:bg-green-500/20 group-hover:scale-110 transition-all duration-300">
+                <motion.div
+                  whileHover={{ scale: 1.1 }}
+                  className="w-12 h-12 rounded-xl bg-green-500/10 text-green-400 flex items-center justify-center mb-5 group-hover:bg-green-500/20 transition-colors duration-300"
+                >
                   {f.icon}
-                </div>
+                </motion.div>
                 <h3 className="text-lg font-semibold text-white mb-3 group-hover:text-green-300 transition-colors">{f.title}</h3>
                 <p className="text-sm text-gray-400 leading-relaxed mb-6">{f.desc}</p>
                 <Link
@@ -291,131 +342,150 @@ export default function Landing() {
                   className="inline-flex items-center gap-1.5 text-sm font-medium text-green-400 hover:text-green-300 transition-colors group/link"
                 >
                   {f.cta}
-                  <svg className="w-4 h-4 transition-transform duration-200 group-hover/link:translate-x-1" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                  <motion.svg
+                    whileHover={{ x: 3 }}
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="2"
+                    stroke="currentColor"
+                  >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                  </svg>
+                  </motion.svg>
                 </Link>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </Section>
 
       {/* ── Value Pillars ── */}
-      <section
-        ref={pillarsRef}
-        className="py-24 border-t border-gray-800/50"
-      >
+      <Section className="py-24 border-t border-gray-800/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-3 gap-12">
-            {pillars.map((p, i) => (
-              <div
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-40px' }}
+            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.15 } } }}
+            className="grid md:grid-cols-3 gap-12"
+          >
+            {pillars.map((p) => (
+              <motion.div
                 key={p.title}
-                className={`text-center transition-all duration-700 ${
-                  pillarsIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                }`}
-                style={{ transitionDelay: `${i * 150}ms` }}
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+                }}
+                className="text-center"
               >
-                <div className="w-16 h-16 rounded-2xl bg-green-500/10 text-green-400 flex items-center justify-center mx-auto mb-5 hover:scale-110 hover:bg-green-500/20 transition-all duration-300">
+                <motion.div
+                  whileHover={{ scale: 1.12 }}
+                  className="w-16 h-16 rounded-2xl bg-green-500/10 text-green-400 flex items-center justify-center mx-auto mb-5 transition-colors duration-300 hover:bg-green-500/20"
+                >
                   {p.icon}
-                </div>
+                </motion.div>
                 <h3 className="text-lg font-semibold text-white mb-3">{p.title}</h3>
                 <p className="text-sm text-gray-400 leading-relaxed max-w-xs mx-auto">{p.desc}</p>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </Section>
 
       {/* ── FAQ ── */}
-      <section
-        ref={faqRef}
-        className="py-24 border-t border-gray-800/50"
-      >
+      <Section className="py-24 border-t border-gray-800/50">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className={`text-center mb-16 transition-all duration-700 ${
-            faqIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white">Frequently Asked Questions</h2>
-          </div>
+          <FadeUp>
+            <div className="text-center mb-16">
+              <h2 className="text-3xl sm:text-4xl font-bold text-white">Frequently Asked Questions</h2>
+            </div>
+          </FadeUp>
 
-          <div className="space-y-3">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-40px' }}
+            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }}
+            className="space-y-3"
+          >
             {faqs.map((faq, i) => (
-              <div
+              <motion.div
                 key={i}
-                className={`rounded-xl border border-gray-800 overflow-hidden transition-all duration-500 hover:border-gray-700 ${
-                  faqIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                }`}
-                style={{ transitionDelay: `${i * 100}ms` }}
+                variants={{
+                  hidden: { opacity: 0, y: 16 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+                }}
+                className="rounded-xl border border-gray-800 overflow-hidden transition-colors hover:border-gray-700"
               >
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   className="w-full flex items-center justify-between px-6 py-4 text-left text-sm font-medium text-white hover:bg-gray-800/50 transition-colors cursor-pointer"
                 >
                   {faq.q}
-                  <svg
-                    className={`w-4 h-4 text-gray-500 transition-all duration-300 ${
-                      openFaq === i ? 'rotate-180 text-green-400' : ''
-                    }`}
+                  <motion.svg
+                    animate={{ rotate: openFaq === i ? 180 : 0 }}
+                    transition={{ duration: 0.3 }}
+                    className={`w-4 h-4 ${openFaq === i ? 'text-green-400' : 'text-gray-500'}`}
                     fill="none"
                     viewBox="0 0 24 24"
                     strokeWidth="2"
                     stroke="currentColor"
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                  </svg>
+                  </motion.svg>
                 </button>
-                <div
-                  className={`overflow-hidden transition-all duration-300 ${
-                    openFaq === i ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                  }`}
+                <motion.div
+                  initial={false}
+                  animate={{
+                    height: openFaq === i ? 'auto' : 0,
+                    opacity: openFaq === i ? 1 : 0,
+                  }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+                  className="overflow-hidden"
                 >
                   <div className="px-6 pb-4 text-sm text-gray-400 leading-relaxed">
                     {faq.a}
                   </div>
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </Section>
 
       {/* ── CTA ── */}
-      <section
-        ref={ctaRef}
-        className="py-24 border-t border-gray-800/50 relative overflow-hidden"
-      >
+      <Section className="py-24 border-t border-gray-800/50 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-green-500/3 via-transparent to-green-500/3" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className={`max-w-2xl mx-auto text-center transition-all duration-700 ${
-            ctaIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white leading-tight">
-              Ready for private payments on Stellar?
-            </h2>
-            <p className="mt-4 text-gray-400">
-              Launch your merchant console, deploy the privacy contract, and start accepting private payments in minutes.
-            </p>
-            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link
-                to="/dashboard"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-green-500 text-white font-medium hover:bg-green-400 transition-all hover:shadow-xl hover:shadow-green-500/30 hover:-translate-y-0.5"
-              >
-                Get Started Free
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                </svg>
-              </Link>
-              <Link
-                to="/developers"
-                className="inline-flex items-center px-6 py-3 rounded-xl border border-gray-700 text-gray-300 font-medium hover:bg-gray-800 transition-all hover:-translate-y-0.5"
-              >
-                Read Documentation
-              </Link>
+          <FadeUp>
+            <div className="max-w-2xl mx-auto text-center">
+              <h2 className="text-3xl sm:text-4xl font-bold text-white leading-tight">
+                Ready for private payments on Stellar?
+              </h2>
+              <p className="mt-4 text-gray-400">
+                Launch your merchant console, deploy the privacy contract, and start accepting private payments in minutes.
+              </p>
+              <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Link
+                  to="/dashboard"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-green-500 text-white font-medium hover:bg-green-400 transition-all hover:shadow-xl hover:shadow-green-500/30 hover:-translate-y-0.5"
+                >
+                  Get Started Free
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                  </svg>
+                </Link>
+                <Link
+                  to="/developers"
+                  className="inline-flex items-center px-6 py-3 rounded-xl border border-gray-700 text-gray-300 font-medium hover:bg-gray-800 transition-all hover:-translate-y-0.5"
+                >
+                  Read Documentation
+                </Link>
+              </div>
             </div>
-          </div>
+          </FadeUp>
         </div>
-      </section>
+      </Section>
 
       {/* ── Footer ── */}
       <footer className="border-t border-gray-800/50 py-12">
