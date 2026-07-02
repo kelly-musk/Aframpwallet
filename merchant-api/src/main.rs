@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::sync::Mutex;
 use aes_gcm::{
@@ -684,12 +684,15 @@ async fn main() {
         .route("/api/export/transactions", get(export_transactions))
         .with_state(state);
 
+    let dist = std::env::var("DIST_PATH")
+        .map(PathBuf::from)
+        .unwrap_or_else(|_| Path::new(env!("CARGO_MANIFEST_DIR")).parent().unwrap().join("merchant-dashboard/dist"));
     let app = Router::new()
         .merge(api_routes)
             .fallback_service(
-                ServeDir::new("merchant-dashboard/dist")
+                ServeDir::new(&dist)
                     .append_index_html_on_directories(true)
-                    .fallback(ServeFile::new("merchant-dashboard/dist/index.html"))
+                    .fallback(ServeFile::new(dist.join("index.html")))
             )
         .layer(cors);
 
