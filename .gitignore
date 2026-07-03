@@ -5,3 +5,4 @@ Cargo.lock
 merchant_data/
 wallet-app/.expo/
 wallet-app/node_modules/
+.env
