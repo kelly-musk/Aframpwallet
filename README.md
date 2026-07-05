@@ -5,7 +5,7 @@
 <h1 align="center">Aframp</h1>
 
 <p align="center">
-  <strong>Zero-Knowledge Privacy Layer for Stellar Merchant Payments</strong>
+  <strong>Private Economic Infrastructure — HTTPS for Money</strong>
 </p>
 
 <p align="center">
@@ -20,48 +20,26 @@
 
 ---
 
-## The Problem
+## The Vision
 
-Every Stellar transaction — amount, sender, receiver — is visible to the entire network.
+**Build the privacy layer for everyday commerce.**
 
-For merchants, this is a business liability:
-- **Competitors** track your revenue and customer activity
-- **Customers** lose financial privacy on every purchase
-- **Regulations** (GDPR, data protection) require confidentiality that public blockchains don't provide
-- **High-value B2B payments** expose sensitive business relationships
+Not just a private wallet. Not just a ZK payment app. The long-term goal is infrastructure that allows economic activity to remain private by default while still letting users prove what needs to be proven.
 
-## The Solution
+> HTTPS for money.
 
-**Aframp** wraps Stellar payments in Groth16 zero-knowledge proofs over BN254. The blockchain sees only a validity proof and a unique nullifier — *nothing else*. Payment amounts, customer identities, and merchant relationships stay cryptographically hidden.
+Today, a payment reveals wallet balance, transaction history, spending habits, income, suppliers, customers, and business revenue. Aframp changes that — instead of exposing data, users expose **proofs**.
 
-Proofs are generated **client-side via WASM** — the customer's secret never leaves their device. The merchant API only receives the proof and relays it to the Soroban smart contract.
+## What's Built
 
-| Without Aframp | With Aframp |
-|---|---|
-| Amount, sender, receiver public | Only validity proof on-chain |
-| Competitors see your volume | Zero knowledge revealed |
-| Customer data exposed | Merchant controls all data via viewing keys |
-| No regulatory compliance path | Selective disclosure for auditors |
+Private merchant payments on Stellar with zero-knowledge proofs:
 
-## Frontend Pages
-
-The merchant dashboard is deployed at **[aframpwallet.vercel.app](https://aframpwallet.vercel.app/)** with these pages:
-
-| Page | Route | Description |
-|---|---|---|
-| **Landing** | `/` | Fundable.finance-style hero with gradient text, scroll animations, marquee trust badges, FAQ accordion, value pillars |
-| **Dashboard** | `/dashboard` | Analytics overview with stats grid, recent activity feed, quick action links |
-| **Distribution** | `/distribution` | Token/report distribution management |
-| **History** | `/transactions` | Full transaction history with status tracking |
-| **Offramp** | `/compliance` | Compliance reports, CSV export, viewing key generation |
-| **Payment Stream** | `/pay` | Client-side ZK proof generation demo using in-browser WASM |
-| **Settings** | `/settings` | Merchant configuration, QR code for customer wallet |
-
-The UI was redesigned to match the dark, polished aesthetic of **Fundable.finance**:
-- **Green primary** palette (`#10b981`) replacing navy/gold
-- Dark theme throughout (`#0a0a0f` backgrounds)
-- **framer-motion** animations: staggered scroll reveals, card hover effects, FAQ expand, floating decorative elements
-- Server-side rendered views via **Tailwind CSS v4**
+1. Merchants create an identity (generates proving key, verifying key, CRS)
+2. Customers fetch the merchant's proving key
+3. Customers generate Groth16 proofs client-side via WASM (secret never leaves device)
+4. Proofs are submitted to a Soroban smart contract that verifies BN254 pairings
+5. Nullifiers prevent double-spending
+6. Merchant dashboard decrypts payment notes with viewing keys
 
 ## Architecture
 
@@ -83,38 +61,6 @@ aframp/
 ├── wallet-wasm/            # WASM-compiled ZK prover (wasm-bindgen)
 │   └── src/lib.rs          # generate_proof() exported to JS
 └── wallet-app/             # React Native (Expo) mobile wallet for customers
-```
-
-## End-to-End Flow
-
-```
-                      CLIENT-SIDE PRIVACY FLOW
-
-  Browser/App                        Merchant
-  ────────────                       ────────
-
-  1. Fetch merchant's proving key (pk_hex)
-     via GET /api/merchant/:id/pk
-
-  2. Generate random customer secret (32 bytes)
-     ├── secret stays in browser memory
-     ├── WASM prover computes:
-     │     nullifier  = secret + amount
-     │     commitment = secret × amount × merchant_id
-     └── WASM prover generates Groth16 proof
-
-  3. Submit proof (a, b, c, nullifier, commitment)
-     to POST /api/payment/submit-to-contract
-
-  4. Merchant API relays to Soroban contract
-     ├── Contract verifies BN254 pairing checks
-     ├── Stores nullifier (prevents double-spend)
-     └── Encrypts payment note for dashboard
-
-  5. Merchant views in dashboard
-     ├── Decrypted with viewing key (AES-256-GCM)
-     ├── Balance, transactions, charts
-     └── Compliance reports with selective disclosure
 ```
 
 ## Tech Stack
@@ -193,7 +139,7 @@ cargo run -p privacy-cli -- proof
 ### Run Tests
 
 ```bash
-cargo test                    # Unit tests (circuit + contract) — 10 tests
+cargo test                    # Unit tests (circuit + contract) — 9 tests
 ./test_e2e.sh                 # End-to-end integration test (12 checks)
 ```
 
@@ -206,7 +152,10 @@ cargo test                    # Unit tests (circuit + contract) — 10 tests
 | GET | `/api/merchant/:seed_hex/payments` | List payment records |
 | GET | `/api/merchant/:seed_hex/balance` | Merchant balance |
 | GET | `/api/merchant/:seed_hex/qr-info` | QR code data for customer wallet |
+| POST | `/api/payment/generate-proof` | Generate a zero-knowledge proof server-side |
+| POST | `/api/payment/verify` | Verify a proof locally |
 | POST | `/api/payment/submit-to-contract` | Submit proof to Soroban contract |
+| POST | `/api/wallet/generate-proof` | Generate proof from raw proving key (used by POS/mobile clients) |
 | POST | `/api/merchant/init-contract` | Initialize contract with verifying key |
 | GET | `/api/dashboard/stats` | Dashboard analytics |
 | POST | `/api/compliance/report` | Compliance report |
@@ -233,7 +182,7 @@ The Soroban contract (`privacy-contract/`) exposes:
 |---|---|---|
 | `privacy-circuits/` | ~250 | ZK circuit with 3 R1CS constraints |
 | `privacy-contract/` | ~390 | Soroban Groth16 verifier, 6 passing tests |
-| `merchant-api/` | ~700 | Axum API server, 14 routes |
+| `merchant-api/` | ~770 | Axum API server, 17 routes |
 | `merchant-dashboard/` | ~2,000 | React SPA, 11 pages + landing with framer-motion animations |
 | `wallet-wasm/` | ~65 | WASM-compiled prover (237 KB) |
 | `privacy-cli/` | ~280 | Terminal CLI |

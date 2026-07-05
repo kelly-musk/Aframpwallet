@@ -43,7 +43,7 @@ fn menu_items() -> Vec<&'static str> {
 
 fn create_merchant() -> Option<CreateResponse> {
     println!("\n--- Create Merchant ---");
-    let url = format!("{}/merchant/create", api_url());
+    let url = format!("{}/api/merchant/create", api_url());
     match ureq::post(&url).send("") {
         Ok(resp) => {
             match resp.into_body().read_json::<CreateResponse>() {

@@ -156,7 +156,7 @@ echo ""
 echo "═══ 9/12 Submit proof to on-chain contract ═══"
 SUBMIT_RESP=$(curl -s -X POST "$API_BASE/payment/submit-to-contract" \
     -H "Content-Type: application/json" \
-    -d "{\"seed\":\"$MERCHANT_SEED_VAL\",\"amount\":$AMOUNT,\"customer_id\":\"$CUSTOMER\"}")
+    -d "{\"seed\":\"$MERCHANT_SEED_VAL\",\"a\":\"$PROOF_A\",\"b\":\"$PROOF_B\",\"c\":\"$PROOF_C\",\"nullifier\":\"$NULLIFIER\",\"commitment\":\"$COMMITMENT\",\"amount\":$AMOUNT,\"customer_id\":\"$CUSTOMER\"}")
 echo "  Response: $SUBMIT_RESP"
 SUCCESS=$(echo "$SUBMIT_RESP" | python3 -c "import sys,json; print(json.load(sys.stdin)['success'])")
 assert_eq "On-chain submission succeeds" "true" "$SUCCESS"
@@ -182,7 +182,7 @@ echo ""
 echo "═══ 11/12 Double-spend attempt (should be rejected) ═══"
 DOUBLE_RESP=$(curl -s -X POST "$API_BASE/payment/submit-to-contract" \
     -H "Content-Type: application/json" \
-    -d "{\"seed\":\"$MERCHANT_SEED_VAL\",\"amount\":$AMOUNT,\"customer_id\":\"$CUSTOMER\"}")
+    -d "{\"seed\":\"$MERCHANT_SEED_VAL\",\"a\":\"$PROOF_A\",\"b\":\"$PROOF_B\",\"c\":\"$PROOF_C\",\"nullifier\":\"$NULLIFIER\",\"commitment\":\"$COMMITMENT\",\"amount\":$AMOUNT,\"customer_id\":\"$CUSTOMER\"}")
 echo "  Response: $DOUBLE_RESP"
 DOUBLE_SUCCESS=$(echo "$DOUBLE_RESP" | python3 -c "import sys,json; print(json.load(sys.stdin)['success'])")
 assert_eq "Double-spend is rejected" "false" "$DOUBLE_SUCCESS"
@@ -193,11 +193,20 @@ assert_eq "Double-spend is rejected" "false" "$DOUBLE_SUCCESS"
 echo ""
 echo "═══ 12/12 Fresh payment (different customer) ═══"
 FRESH_CUSTOMER="00000000000000000000000000000000000000000000000000000000aaaa0001"
-FRESH_RESP=$(curl -s -X POST "$API_BASE/payment/submit-to-contract" \
+# Generate a fresh proof for the new customer/amount
+FRESH_PROOF_RESP=$(curl -s -X POST "$API_BASE/payment/generate-proof" \
     -H "Content-Type: application/json" \
     -d "{\"seed\":\"$MERCHANT_SEED_VAL\",\"amount\":$AMOUNT_FRESH,\"customer_id\":\"$FRESH_CUSTOMER\"}")
-echo "  Response: $FRESH_RESP"
-FRESH_SUCCESS=$(echo "$FRESH_RESP" | python3 -c "import sys,json; print(json.load(sys.stdin)['success'])")
+FRESH_PROOF_A=$(echo "$FRESH_PROOF_RESP" | python3 -c "import sys,json; print(json.load(sys.stdin)['proof']['a'])")
+FRESH_PROOF_B=$(echo "$FRESH_PROOF_RESP" | python3 -c "import sys,json; print(json.load(sys.stdin)['proof']['b'])")
+FRESH_PROOF_C=$(echo "$FRESH_PROOF_RESP" | python3 -c "import sys,json; print(json.load(sys.stdin)['proof']['c'])")
+FRESH_NULLIFIER=$(echo "$FRESH_PROOF_RESP" | python3 -c "import sys,json; print(json.load(sys.stdin)['nullifier'])")
+FRESH_COMMITMENT=$(echo "$FRESH_PROOF_RESP" | python3 -c "import sys,json; print(json.load(sys.stdin)['commitment'])")
+FRESH_SUBMIT_RESP=$(curl -s -X POST "$API_BASE/payment/submit-to-contract" \
+    -H "Content-Type: application/json" \
+    -d "{\"seed\":\"$MERCHANT_SEED_VAL\",\"a\":\"$FRESH_PROOF_A\",\"b\":\"$FRESH_PROOF_B\",\"c\":\"$FRESH_PROOF_C\",\"nullifier\":\"$FRESH_NULLIFIER\",\"commitment\":\"$FRESH_COMMITMENT\",\"amount\":$AMOUNT_FRESH,\"customer_id\":\"$FRESH_CUSTOMER\"}")
+echo "  Response: $FRESH_SUBMIT_RESP"
+FRESH_SUCCESS=$(echo "$FRESH_SUBMIT_RESP" | python3 -c "import sys,json; print(json.load(sys.stdin)['success'])")
 assert_eq "Fresh payment succeeds" "true" "$FRESH_SUCCESS"
 
 # ─────────────────────────────────────────────────

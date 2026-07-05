@@ -8,7 +8,7 @@ use aes_gcm::{
     aead::{Aead, KeyInit},
 };
 use ark_ff::{BigInteger, PrimeField};
-use ark_serialize::CanonicalSerialize;
+use ark_serialize::{CanonicalDeserialize, CanonicalSerialize};
 use axum::{
     Router,
     extract::{Path as AxumPath, State},
@@ -157,6 +157,62 @@ struct MerchantPkResponse {
     merchant_id: String,
 }
 
+#[derive(Deserialize)]
+struct GenerateProofRequest {
+    seed: String,
+    amount: u64,
+    #[allow(dead_code)]
+    customer_id: String,
+}
+
+#[derive(Serialize)]
+struct ProofJson {
+    a: String,
+    b: String,
+    c: String,
+}
+
+#[derive(Serialize)]
+struct GenerateProofResponse {
+    proof: ProofJson,
+    nullifier: String,
+    commitment: String,
+}
+
+#[derive(Deserialize)]
+struct VerifyProofRequest {
+    seed: String,
+    a: String,
+    b: String,
+    c: String,
+    nullifier: String,
+    commitment: String,
+}
+
+#[derive(Serialize)]
+struct VerifyProofResponse {
+    valid: bool,
+}
+
+#[derive(Deserialize)]
+struct WalletGenerateProofRequest {
+    pk_hex: String,
+    customer_secret: String,
+    amount: u64,
+    merchant_id: String,
+}
+
+#[derive(Serialize)]
+struct WalletGenerateProofResponse {
+    success: bool,
+    a: String,
+    b: String,
+    c: String,
+    nullifier: String,
+    commitment: String,
+    error: Option<String>,
+}
+
 #[derive(Serialize)]
 struct MerchantBalanceResponse {
     balance: String,
@@ -177,6 +233,40 @@ fn g1_to_hex(point: &ark_bn254::G1Affine) -> String {
     out.extend_from_slice(&point.x.into_bigint().to_bytes_be());
     out.extend_from_slice(&point.y.into_bigint().to_bytes_be());
     hex::encode(out)
+}
+
+fn hex_to_g1(hex_str: &str) -> Result<ark_bn254::G1Affine, String> {
+    let bytes = hex::decode(hex_str).map_err(|e| format!("invalid hex: {e}"))?;
+    if bytes.len() != 64 {
+        return Err("expected 64 bytes for G1".into());
+    }
+    let x = ark_bn254::Fq::from_be_bytes_mod_order(&bytes[..32]);
+    let y = ark_bn254::Fq::from_be_bytes_mod_order(&bytes[32..]);
+    Ok(ark_bn254::G1Affine::new(x, y))
+}
+
+fn hex_to_g2(hex_str: &str) -> Result<ark_bn254::G2Affine, String> {
+    let bytes = hex::decode(hex_str).map_err(|e| format!("invalid hex: {e}"))?;
+    if bytes.len() != 128 {
+        return Err("expected 128 bytes for G2".into());
+    }
+    let x_c1 = ark_bn254::Fq::from_be_bytes_mod_order(&bytes[..32]);
+    let x_c0 = ark_bn254::Fq::from_be_bytes_mod_order(&bytes[32..64]);
+    let y_c1 = ark_bn254::Fq::from_be_bytes_mod_order(&bytes[64..96]);
+    let y_c0 = ark_bn254::Fq::from_be_bytes_mod_order(&bytes[96..]);
+    let x = ark_bn254::Fq2::new(x_c0, x_c1);
+    let y = ark_bn254::Fq2::new(y_c0, y_c1);
+    Ok(ark_bn254::G2Affine::new(x, y))
+}
+
+fn hex_to_bytes_32(hex_str: &str) -> Result<[u8; 32], String> {
+    let bytes = hex::decode(hex_str).map_err(|e| format!("invalid hex: {e}"))?;
+    if bytes.len() != 32 {
+        return Err("expected 32 bytes".into());
+    }
+    let mut arr = [0u8; 32];
+    arr.copy_from_slice(&bytes);
+    Ok(arr)
 }
 
 fn g2_to_hex(point: &ark_bn254::G2Affine) -> String {
@@ -650,6 +740,114 @@ async fn generate_viewing_key() -> Json<ViewingKeyResponse> {
     Json(ViewingKeyResponse { key: hex::encode(key) })
 }
 
+async fn api_generate_proof(
+    State(state): State<AppState>,
+    Json(req): Json<GenerateProofRequest>,
+) -> Json<GenerateProofResponse> {
+    let seed = parse_hex_seed(&req.seed);
+    let merchant = {
+        let mut merchants = state.merchants.lock().unwrap();
+        get_or_create_merchant(&mut merchants, &seed)
+    };
+    let mut customer_secret = [0u8; 32];
+    rand::thread_rng().fill_bytes(&mut customer_secret);
+    let (proof, nullifier, commitment) = privacy_circuits::customer_generate_proof(
+        &merchant.pk, &customer_secret, req.amount, &seed,
+    ).unwrap();
+    Json(GenerateProofResponse {
+        proof: ProofJson {
+            a: g1_to_hex(&proof.a),
+            b: g2_to_hex(&proof.b),
+            c: g1_to_hex(&proof.c),
+        },
+        nullifier: fr_to_hex(&nullifier),
+        commitment: fr_to_hex(&commitment),
+    })
+}
+
+async fn api_verify_proof(
+    State(state): State<AppState>,
+    Json(req): Json<VerifyProofRequest>,
+) -> Json<VerifyProofResponse> {
+    let seed = parse_hex_seed(&req.seed);
+    let merchant = {
+        let mut merchants = state.merchants.lock().unwrap();
+        get_or_create_merchant(&mut merchants, &seed)
+    };
+    let a = match hex_to_g1(&req.a) {
+        Ok(v) => v,
+        Err(_) => return Json(VerifyProofResponse { valid: false }),
+    };
+    let b = match hex_to_g2(&req.b) {
+        Ok(v) => v,
+        Err(_) => return Json(VerifyProofResponse { valid: false }),
+    };
+    let c = match hex_to_g1(&req.c) {
+        Ok(v) => v,
+        Err(_) => return Json(VerifyProofResponse { valid: false }),
+    };
+    let proof = ark_groth16::Proof { a, b, c };
+    let nullifier = ark_bn254::Fr::from_be_bytes_mod_order(&hex::decode(&req.nullifier).unwrap_or_default());
+    let commitment = ark_bn254::Fr::from_be_bytes_mod_order(&hex::decode(&req.commitment).unwrap_or_default());
+    let valid = merchant.verify_proof(&proof, &merchant.merchant_id, &nullifier, &commitment).unwrap_or(false);
+    Json(VerifyProofResponse { valid })
+}
+
+async fn api_wallet_generate_proof(
+    Json(req): Json<WalletGenerateProofRequest>,
+) -> Json<WalletGenerateProofResponse> {
+    let pk_bytes = match hex::decode(&req.pk_hex) {
+        Ok(b) => b,
+        Err(e) => return Json(WalletGenerateProofResponse {
+            success: false, a: String::new(), b: String::new(), c: String::new(),
+            nullifier: String::new(), commitment: String::new(),
+            error: Some(format!("invalid pk_hex: {e}")),
+        }),
+    };
+    let pk = match ark_groth16::ProvingKey::<ark_bn254::Bn254>::deserialize_compressed(
+        &mut &pk_bytes[..],
+    ) {
+        Ok(v) => v,
+        Err(e) => return Json(WalletGenerateProofResponse {
+            success: false, a: String::new(), b: String::new(), c: String::new(),
+            nullifier: String::new(), commitment: String::new(),
+            error: Some(format!("failed to deserialize PK: {e}")),
+        }),
+    };
+    let customer_secret = match hex_to_bytes_32(&req.customer_secret) {
+        Ok(v) => v,
+        Err(e) => return Json(WalletGenerateProofResponse {
+            success: false, a: String::new(), b: String::new(), c: String::new(),
+            nullifier: String::new(), commitment: String::new(),
+            error: Some(format!("invalid customer_secret: {e}")),
+        }),
+    };
+    let merchant_id_bytes = match hex_to_bytes_32(&req.merchant_id) {
+        Ok(v) => v,
+        Err(e) => return Json(WalletGenerateProofResponse {
+            success: false, a: String::new(), b: String::new(), c: String::new(),
+            nullifier: String::new(), commitment: String::new(),
+            error: Some(format!("invalid merchant_id: {e}")),
+        }),
+    };
+    match privacy_circuits::customer_generate_proof(&pk, &customer_secret, req.amount, &merchant_id_bytes) {
+        Ok((proof, nullifier, commitment)) => Json(WalletGenerateProofResponse {
+            success: true,
+            a: g1_to_hex(&proof.a),
+            b: g2_to_hex(&proof.b),
+            c: g1_to_hex(&proof.c),
+            nullifier: fr_to_hex(&nullifier),
+            commitment: fr_to_hex(&commitment),
+            error: None,
+        }),
+        Err(e) => Json(WalletGenerateProofResponse {
+            success: false, a: String::new(), b: String::new(), c: String::new(),
+            nullifier: String::new(), commitment: String::new(),
+            error: Some(format!("proof generation failed: {e}")),
+        }),
+    }
+}
+
 // ── Main ──
 
 #[tokio::main]
@@ -679,7 +877,10 @@ async fn main() {
         .route("/api/merchant/:seed_hex/payments", get(get_merchant_payments))
         .route("/api/merchant/:seed_hex/balance", get(get_merchant_balance))
         .route("/api/merchant/:seed_hex/qr-info", get(get_merchant_qr_info))
+        .route("/api/payment/generate-proof", post(api_generate_proof))
+        .route("/api/payment/verify", post(api_verify_proof))
         .route("/api/payment/submit-to-contract", post(submit_to_contract))
+        .route("/api/wallet/generate-proof", post(api_wallet_generate_proof))
         .route("/api/balance/:merchant_id", get(get_balance))
         .route("/api/export/transactions", get(export_transactions))
         .with_state(state);
