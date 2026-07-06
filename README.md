@@ -76,13 +76,16 @@ Pay anyone. Reveal nothing except proof that payment happened.
 ### 4. Merchant Payments
 Businesses receive payments privately — revenue hidden, customers hidden, suppliers hidden, invoices hidden.
 
-### 5. Viewing Keys
+### 5. Merchant Dashboard
+Businesses see revenue, transactions, analytics, and reports without exposing anything publicly.
+
+### 6. Viewing Keys
 Businesses decide who can see what and when — not the blockchain, not the protocol, the merchant.
 
-### 6. Compliance
+### 7. Compliance
 Need an audit? Generate a proof. Need taxes? Generate a proof. Share only what is required. Nothing more.
 
-### 7. Private Offramp
+### 8. Private Offramp
 Convert digital assets back to local currency. Privacy preserved.
 
 ---
