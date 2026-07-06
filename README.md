@@ -5,7 +5,7 @@
 <h1 align="center">Aframp</h1>
 
 <p align="center">
-  <strong>Private Economic Infrastructure — HTTPS for Money</strong>
+  <strong>The Private Financial Infrastructure for Modern Commerce.</strong>
 </p>
 
 <p align="center">
@@ -16,32 +16,146 @@
   <a href="https://github.com/kelly-musk/Aframpwallet"><img src="https://img.shields.io/badge/License-MIT-green" /></a>
 </p>
 
----
-
 > **⚠️ Development Status**: This project is still under active development and has not reached a full MVP release. Components are incomplete, unoptimized, and subject to breaking changes. Not ready for production use.
 
 ---
 
-## The Vision
+## Vision
 
-**Build the privacy layer for everyday commerce.**
+Aframp is building the infrastructure that makes financial privacy the default across the entire movement of money — from entering digital assets, to making payments, to exiting back into local currencies.
 
-Not just a private wallet. Not just a ZK payment app. The long-term goal is infrastructure that allows economic activity to remain private by default while still letting users prove what needs to be proven.
+Whether you're an individual buying coffee, a merchant accepting payments, or a business settling invoices, your financial activity should belong to you — not the public.
 
-> HTTPS for money.
+> **The Privacy Layer for Digital Finance.**
 
-Today, a payment reveals wallet balance, transaction history, spending habits, income, suppliers, customers, and business revenue. Aframp changes that — instead of exposing data, users expose **proofs**.
+### Private Economics
 
-## What's Built
+This is the philosophy behind Aframp. Not just hiding transactions — protecting **economic relationships**. Salaries, payroll, supplier contracts, business revenue, invoices, subscriptions, donations, savings, treasury, loans, investments, commerce.
 
-Private merchant payments on Stellar with zero-knowledge proofs:
+These reveal how people and businesses operate. That information has real value and should not be exposed by default.
 
-1. Merchants create an identity (generates proving key, verifying key, CRS)
-2. Customers fetch the merchant's proving key
-3. Customers generate Groth16 proofs client-side via WASM (secret never leaves device)
-4. Proofs are submitted to a Soroban smart contract that verifies BN254 pairings
-5. Nullifiers prevent double-spending
-6. Merchant dashboard decrypts payment notes with viewing keys
+---
+
+## The Problem
+
+Today's financial systems leak information everywhere. Banks, payment processors, public blockchains, analytics companies, and competitors all have visibility into your financial life.
+
+Every payment reveals who paid, who received, the amount, frequency, business relationships, revenue, customers, suppliers, and spending behavior. **Money becomes surveillance.**
+
+Financial privacy should work like encrypted messaging. When you send a message, no one expects the whole internet to read it. When you make a payment, no one should expect the whole internet to inspect your finances.
+
+---
+
+## What Aframp Is
+
+Aframp is **not** simply an onramp. It is **not** simply an offramp. It is **not** simply a wallet.
+
+Aframp is a **private financial operating system** built around the complete lifecycle of digital money:
+
+```
+Fiat → Onramp → Private Wallet → Private Payments →
+Merchant Acceptance → Payroll → Invoices → Subscriptions →
+Savings → Business Treasury → Offramp → Bank
+```
+
+Every step preserves privacy.
+
+---
+
+## Products
+
+### 1. Private Onramp
+Buy digital assets privately. No unnecessary financial exposure.
+
+### 2. Private Wallet
+Hold assets privately — hidden balances, hidden transaction history, hidden relationships.
+
+### 3. Private Payments
+Pay anyone. Reveal nothing except proof that payment happened.
+
+### 4. Merchant Payments
+Businesses receive payments privately — revenue hidden, customers hidden, suppliers hidden, invoices hidden.
+
+### 5. Merchant Dashboard
+Businesses see revenue, transactions, analytics, and reports without exposing anything publicly.
+
+### 6. Viewing Keys
+Businesses decide who can see what and when — not the blockchain, not the protocol, the merchant.
+
+### 7. Compliance
+Need an audit? Generate a proof. Need taxes? Generate a proof. Share only what is required. Nothing more.
+
+### 8. Private Offramp
+Convert digital assets back to local currency. Privacy preserved.
+
+---
+
+## Privacy Receipts
+
+Instead of sending payment details, wallet history, balance, and metadata, Aframp sends:
+
+```
+✓ Payment completed
+✓ Verified
+✓ Cryptographically valid
+```
+
+Nothing else. Exactly what the recipient needs.
+
+---
+
+## Why Merchants Need Aframp
+
+A merchant accepting payments on a transparent blockchain unintentionally publishes business intelligence. Competitors can estimate monthly revenue, customer growth, average order value, seasonal trends, supplier relationships, and high-value clients.
+
+Aframp prevents this by making payment details private while still allowing verification where needed.
+
+---
+
+## Technical Foundation
+
+| Component | Technology |
+|-----------|-----------|
+| Layer 1 | Stellar |
+| Smart Contracts | Soroban |
+| Proof System | Groth16 over BN254 |
+| Client-Side ZK | WASM (wasm-bindgen, 237 KB) |
+| Viewing Key Encryption | AES-256-GCM |
+| Backend API | Rust + Axum |
+| Frontend | React 19 + Vite + Tailwind v4 + framer-motion |
+| Mobile | React Native (Expo) |
+| POS Client | Rust + dialoguer TUI |
+
+The cryptography stays behind the scenes so users get a familiar payment experience.
+
+---
+
+## Long-Term Vision
+
+Aframp becomes the privacy layer for the entire financial ecosystem. Developers build on top of it:
+
+- E-commerce platforms
+- Payroll systems
+- Invoice platforms
+- Donation platforms
+- Subscription billing
+- Lending and escrow
+- Remittances
+- Stablecoin payments
+- Treasury management
+- Cross-border commerce
+- POS software
+- Accounting integrations
+
+---
+
+## What Makes Aframp Different
+
+Most fintech products focus on moving money faster. Most blockchain products focus on transparency. Aframp focuses on **protecting the information that money creates**.
+
+The value isn't just in private transactions — it's in protecting the **economic graph**: the relationships between customers, merchants, suppliers, employees, partners, and institutions.
+
+---
 
 ## Architecture
 
@@ -65,47 +179,25 @@ aframp/
 └── wallet-app/             # React Native (Expo) mobile wallet for customers
 ```
 
-## Tech Stack
-
-| Component | Technology |
-|---|---|
-| Proving System | arkworks 0.4 + Groth16 (BN254) |
-| Smart Contracts | Soroban (Stellar Protocol 25+) |
-| Backend API | Rust + Axum + Tokio |
-| Frontend | React 19 + Vite + TypeScript + Tailwind v4 + framer-motion |
-| Client-Side ZK | WASM (wasm-bindgen, 237 KB) |
-| Data Fetching | TanStack React Query |
-| Charts | Chart.js + Recharts |
-| Mobile | React Native (Expo) |
-| POS Client | Rust + dialoguer TUI |
+---
 
 ## Quick Start
 
 ### Prerequisites
 
 ```bash
-# Rust toolchain
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-
-# Soroban CLI (for contract deployment)
 cargo install soroban-cli --version 27.0.0
-
-# Stellar testnet identity
 soroban keys generate alice --network testnet
 ```
 
 ### Build & Run
 
 ```bash
-# Clone and build
 git clone https://github.com/kelly-musk/Aframpwallet.git
 cd Aframpwallet
 cargo build
-
-# Build frontend
 cd merchant-dashboard && npm install && npm run build && cd ..
-
-# Start the API server
 CONTRACT_ID=CA23SNSLINP3SFVUUCRWNHDNKWYQ23UFURUOTZDZMNSOKM2O63V2MP2Y \
 ./target/debug/merchant-api
 ```
@@ -115,22 +207,19 @@ For local development, open **http://localhost:5173** (Vite dev server proxies A
 ### CLI Usage
 
 ```bash
-# Create merchant identity and save keys
 cargo run -p privacy-cli -- merchant
-
-# Initialize a deployed contract with your VK
 cargo run -p privacy-cli -- init-contract <CONTRACT_ID>
-
-# Generate a payment proof
 cargo run -p privacy-cli -- proof
 ```
 
 ### Run Tests
 
 ```bash
-cargo test                    # Unit tests (circuit + contract) — 9 tests
-./test_e2e.sh                 # End-to-end integration test (12 checks)
+cargo test
+./test_e2e.sh
 ```
+
+---
 
 ## API Reference
 
@@ -144,12 +233,14 @@ cargo test                    # Unit tests (circuit + contract) — 9 tests
 | POST | `/api/payment/generate-proof` | Generate a zero-knowledge proof server-side |
 | POST | `/api/payment/verify` | Verify a proof locally |
 | POST | `/api/payment/submit-to-contract` | Submit proof to Soroban contract |
-| POST | `/api/wallet/generate-proof` | Generate proof from raw proving key (used by POS/mobile clients) |
+| POST | `/api/wallet/generate-proof` | Generate proof from raw proving key |
 | POST | `/api/merchant/init-contract` | Initialize contract with verifying key |
 | GET | `/api/dashboard/stats` | Dashboard analytics |
 | POST | `/api/compliance/report` | Compliance report |
 | POST | `/api/compliance/viewing-key` | Generate viewing key for decryption |
 | GET | `/api/export/transactions` | CSV export |
+
+---
 
 ## Smart Contract
 
@@ -159,11 +250,14 @@ Deployed on Stellar Testnet:
 CA23SNSLINP3SFVUUCRWNHDNKWYQ23UFURUOTZDZMNSOKM2O63V2MP2Y
 ```
 
-The Soroban contract (`privacy-contract/`) exposes:
-- `initialize(vk)` — Store verifying key
-- `verify_proof(proof, pub_signals)` — Groth16 BN254 pairing check
-- `process_payment(proof, merchant_id, nullifier, commitment)` — Verify + nullifier check + record
-- `is_nullifier_used(nullifier)` — Check double-spend status
+| Function | Description |
+|----------|-------------|
+| `initialize(vk)` | Store verifying key |
+| `verify_proof(proof, pub_signals)` | Groth16 BN254 pairing check |
+| `process_payment(proof, merchant_id, nullifier, commitment)` | Verify + nullifier check + record |
+| `is_nullifier_used(nullifier)` | Check double-spend status |
+
+---
 
 ## Repository Structure
 
@@ -172,11 +266,13 @@ The Soroban contract (`privacy-contract/`) exposes:
 | `privacy-circuits/` | ~250 | ZK circuit with 3 R1CS constraints |
 | `privacy-contract/` | ~390 | Soroban Groth16 verifier, 6 passing tests |
 | `merchant-api/` | ~770 | Axum API server, 17 routes |
-| `merchant-dashboard/` | ~2,000 | React SPA, 11 pages + landing with framer-motion animations |
+| `merchant-dashboard/` | ~2,000 | React SPA, 11 pages + landing with framer-motion |
 | `wallet-wasm/` | ~65 | WASM-compiled prover (237 KB) |
 | `privacy-cli/` | ~280 | Terminal CLI |
 | `pos-client/` | ~330 | POS TUI |
 | `wallet-app/` | ~900 | React Native mobile wallet |
+
+---
 
 ## License
 
