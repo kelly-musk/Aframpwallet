@@ -62,51 +62,198 @@ Every step preserves privacy.
 
 ---
 
-## Products
+## Aframp Products
 
 ### 1. Private Onramp
-Buy digital assets privately. No unnecessary financial exposure.
+
+Buy digital assets privately.
+
+No unnecessary financial exposure.
+
+---
 
 ### 2. Private Wallet
-Hold assets privately — hidden balances, hidden transaction history, hidden relationships.
+
+Hold assets privately.
+
+Hidden balances.
+
+Hidden transaction history.
+
+Hidden relationships.
+
+---
 
 ### 3. Private Payments
-Pay anyone. Reveal nothing except proof that payment happened.
+
+Pay anyone.
+
+Reveal nothing except proof that payment happened.
+
+---
 
 ### 4. Merchant Payments
-Businesses receive payments privately — revenue hidden, customers hidden, suppliers hidden, invoices hidden.
+
+Businesses receive payments privately.
+
+Revenue hidden.
+
+Customers hidden.
+
+Suppliers hidden.
+
+Invoices hidden.
+
+---
 
 ### 5. Merchant Dashboard
-Businesses see revenue, transactions, analytics, and reports without exposing anything publicly.
+
+Businesses see:
+
+Revenue
+
+Transactions
+
+Analytics
+
+Reports
+
+without exposing anything publicly.
+
+---
 
 ### 6. Viewing Keys
-Businesses decide who can see what and when — not the blockchain, not the protocol, the merchant.
+
+Businesses decide
+
+who can see
+
+what
+
+and
+
+when.
+
+Not the blockchain.
+
+Not the protocol.
+
+The merchant.
+
+---
 
 ### 7. Compliance
-Need an audit? Generate a proof. Need taxes? Generate a proof. Share only what is required. Nothing more.
+
+Need an audit?
+
+Generate a proof.
+
+Need taxes?
+
+Generate a proof.
+
+Need accounting?
+
+Generate a proof.
+
+Need financing?
+
+Generate a proof.
+
+Share only what is required.
+
+Nothing more.
+
+---
 
 ### 8. Private Offramp
-Convert digital assets back to local currency. Privacy preserved.
+
+Convert digital assets back to local currency.
+
+Privacy preserved.
 
 ---
 
 ## Privacy Receipts
 
-Instead of sending payment details, wallet history, balance, and metadata, Aframp sends:
+This is one of your strongest ideas.
+
+Instead of sending:
+
+```
+Payment
+Wallet
+History
+Balance
+Metadata
+```
+
+Aframp sends
 
 ```
 ✓ Payment completed
+
 ✓ Verified
+
 ✓ Cryptographically valid
 ```
 
-Nothing else. Exactly what the recipient needs.
+Nothing else.
+
+Exactly what the recipient needs.
+
+---
+
+## Private Economics
+
+This is the philosophy behind Aframp.
+
+Not hiding transactions.
+
+Protecting economic relationships.
+
+Examples:
+
+Salary
+
+Payroll
+
+Supplier contracts
+
+Business revenue
+
+Invoices
+
+Subscriptions
+
+Donations
+
+Savings
+
+Treasury
+
+Loans
+
+Investments
+
+Commerce
+
+These reveal how people and businesses operate. That information has real value and should not be exposed by default.
 
 ---
 
 ## Why Merchants Need Aframp
 
-A merchant accepting payments on a transparent blockchain unintentionally publishes business intelligence. Competitors can estimate monthly revenue, customer growth, average order value, seasonal trends, supplier relationships, and high-value clients.
+A merchant accepting payments on a transparent blockchain unintentionally publishes business intelligence.
+
+Competitors can estimate:
+
+* Monthly revenue
+* Customer growth
+* Average order value
+* Seasonal trends
+* Supplier relationships
+* High-value clients
 
 Aframp prevents this by making payment details private while still allowing verification where needed.
 
@@ -114,17 +261,22 @@ Aframp prevents this by making payment details private while still allowing veri
 
 ## Technical Foundation
 
-| Component | Technology |
-|-----------|-----------|
-| Layer 1 | Stellar |
-| Smart Contracts | Soroban |
-| Proof System | Groth16 over BN254 |
-| Client-Side ZK | WASM (wasm-bindgen, 237 KB) |
-| Viewing Key Encryption | AES-256-GCM |
-| Backend API | Rust + Axum |
-| Frontend | React 19 + Vite + Tailwind v4 + framer-motion |
-| Mobile | React Native (Expo) |
-| POS Client | Rust + dialoguer TUI |
+Aframp combines:
+
+* Stellar
+* Soroban smart contracts
+* Groth16 zero-knowledge proofs
+* BN254 pairing verification
+* Client-side WASM proof generation
+* Viewing keys
+* AES-256-GCM encrypted payment notes
+* Selective disclosure
+* Merchant dashboards
+* React frontends
+* Rust backend services
+* React Native mobile wallet
+* POS terminals
+* APIs for merchants and developers
 
 The cryptography stays behind the scenes so users get a familiar payment experience.
 
@@ -132,28 +284,37 @@ The cryptography stays behind the scenes so users get a familiar payment experie
 
 ## Long-Term Vision
 
-Aframp becomes the privacy layer for the entire financial ecosystem. Developers build on top of it:
+Aframp shouldn't stop at merchant payments.
 
-- E-commerce platforms
-- Payroll systems
-- Invoice platforms
-- Donation platforms
-- Subscription billing
-- Lending and escrow
-- Remittances
-- Stablecoin payments
-- Treasury management
-- Cross-border commerce
-- POS software
-- Accounting integrations
+It can become the privacy layer for the entire financial ecosystem.
+
+Developers could build on top of Aframp:
+
+* E-commerce platforms
+* Payroll systems
+* Invoice platforms
+* Donation platforms
+* Subscription billing
+* Lending
+* Escrow
+* Remittances
+* Stablecoin payments
+* Treasury management
+* Cross-border commerce
+* POS software
+* Accounting integrations
 
 ---
 
 ## What Makes Aframp Different
 
-Most fintech products focus on moving money faster. Most blockchain products focus on transparency. Aframp focuses on **protecting the information that money creates**.
+Most fintech products focus on moving money faster.
 
-The value isn't just in private transactions — it's in protecting the **economic graph**: the relationships between customers, merchants, suppliers, employees, partners, and institutions.
+Most blockchain products focus on transparency.
+
+Aframp focuses on **protecting the information that money creates**.
+
+The value isn't just in private transactions—it's in protecting the economic graph: the relationships between customers, merchants, suppliers, employees, partners, and institutions.
 
 ---
 
